@@ -7,9 +7,6 @@ import {
   TextField,
   Button,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
   MenuItem,
 } from "@mui/material";
 
@@ -21,17 +18,14 @@ import {
 } from "../apiService";
 
 const FUENTE = '"Comic Sans MS", "Trebuchet MS", cursive, sans-serif';
-const ROSA = "#FF6B9D";
-const ROSA_CLARO = "#FF8C94";
-const CREMA = "#FFF9E6";
 
 function NuevaReservaCliente() {
   const navigate = useNavigate();
 
   const [direccion, setDireccion] = useState("");
   const [fechaHora, setFechaHora] = useState("");
-  const [tipo, setTipo] = useState("");
-  const [opcionId, setOpcionId] = useState("");
+  const [tipo, setTipo] = useState("");          // servicio | combo | promocion
+  const [opcionId, setOpcionId] = useState("");  // id seleccionado
 
   const [combos, setCombos] = useState([]);
   const [servicios, setServicios] = useState([]);
@@ -79,22 +73,32 @@ function NuevaReservaCliente() {
     }
   };
 
+  const inputCommon = {
+    style: {
+      fontFamily: FUENTE,
+      fontSize: "1rem",
+      color: "#444",
+      textAlign: "left",
+    },
+  };
+
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #FFE6F0 0%, #FFF9E6 100%)",
+        background:
+          "linear-gradient(135deg, #FF6B9D 0%, #FFD3E2 50%, #FFEFD5 100%)",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
         py: 6,
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         <Typography
           variant="h3"
           sx={{
-            color: ROSA,
+            color: "#FF6B9D",
             fontWeight: "bold",
             mb: 4,
             textAlign: "center",
@@ -109,10 +113,11 @@ function NuevaReservaCliente() {
           onSubmit={handleSubmit}
           sx={{
             background: "#ffffff",
-            borderRadius: "25px",
-            boxShadow: "0 15px 40px rgba(0,0,0,0.12)",
-            p: 4,
-            maxWidth: "1000px",
+            borderRadius: "30px",
+            boxShadow: "0 18px 45px rgba(0,0,0,0.18)",
+            px: 6,
+            py: 5,
+            maxWidth: "1100px",
             mx: "auto",
             display: "flex",
             flexDirection: "column",
@@ -120,18 +125,20 @@ function NuevaReservaCliente() {
             fontFamily: FUENTE,
           }}
         >
+          {/* Dirección */}
           <TextField
             label="Dirección del Evento *"
             value={direccion}
             onChange={(e) => setDireccion(e.target.value)}
             required
             fullWidth
-            InputLabelProps={{ style: { fontFamily: FUENTE, color: "#FF7BAA" } }}
-            InputProps={{
-              style: { fontFamily: FUENTE, fontSize: "1rem", color: "#444" },
+            InputLabelProps={{
+              style: { color: "#FF6B9D", fontFamily: FUENTE },
             }}
+            InputProps={inputCommon}
           />
 
+          {/* Fecha y hora */}
           <TextField
             label="Fecha y hora del Evento *"
             type="datetime-local"
@@ -141,128 +148,126 @@ function NuevaReservaCliente() {
             fullWidth
             InputLabelProps={{
               shrink: true,
-              style: { fontFamily: FUENTE, color: "#FF7BAA" },
+              style: { color: "#FF6B9D", fontFamily: FUENTE },
             }}
-            InputProps={{
-              style: { fontFamily: FUENTE, fontSize: "1rem", color: "#444" },
-            }}
+            InputProps={inputCommon}
           />
 
-          <FormControl fullWidth>
-            <InputLabel
-              id="tipo-label"
-              sx={{ fontFamily: FUENTE, color: "#FF7BAA" }}
-            >
-              ¿Qué quieres reservar?
-            </InputLabel>
-            <Select
-              labelId="tipo-label"
-              value={tipo}
-              label="¿Qué quieres reservar?"
-              onChange={(e) => {
-                setTipo(e.target.value);
-                setOpcionId("");
-              }}
-              required
-              sx={{ fontFamily: FUENTE, backgroundColor: CREMA }}
-            >
-              <MenuItem value="servicio" sx={{ fontFamily: FUENTE }}>
-                Servicio
-              </MenuItem>
-              <MenuItem value="combo" sx={{ fontFamily: FUENTE }}>
-                Combo
-              </MenuItem>
-              <MenuItem value="promocion" sx={{ fontFamily: FUENTE }}>
-                Promoción
-              </MenuItem>
-            </Select>
-          </FormControl>
+          {/* Tipo de reserva */}
+          <TextField
+            select
+            label="¿Qué quieres reservar? *"
+            value={tipo}
+            onChange={(e) => {
+              setTipo(e.target.value);
+              setOpcionId("");
+            }}
+            required
+            fullWidth
+            InputLabelProps={{
+              style: { color: "#FF6B9D", fontFamily: FUENTE },
+            }}
+            InputProps={inputCommon}
+            SelectProps={{
+              MenuProps: { PaperProps: { style: { fontFamily: FUENTE } } },
+            }}
+          >
+            <MenuItem value="servicio" sx={{ fontFamily: FUENTE }}>
+              Servicio
+            </MenuItem>
+            <MenuItem value="combo" sx={{ fontFamily: FUENTE }}>
+              Combo
+            </MenuItem>
+            <MenuItem value="promocion" sx={{ fontFamily: FUENTE }}>
+              Promoción
+            </MenuItem>
+          </TextField>
 
+          {/* Servicio */}
           {tipo === "servicio" && (
-            <FormControl fullWidth>
-              <InputLabel
-                id="servicio-label"
-                sx={{ fontFamily: FUENTE, color: "#FF7BAA" }}
-              >
-                Servicio
-              </InputLabel>
-              <Select
-                labelId="servicio-label"
-                value={opcionId}
-                label="Servicio"
-                onChange={(e) => setOpcionId(e.target.value)}
-                required
-                sx={{ fontFamily: FUENTE, backgroundColor: CREMA }}
-              >
-                {servicios.map((s) => (
-                  <MenuItem
-                    key={s.id}
-                    value={s.id}
-                    sx={{ fontFamily: FUENTE }}
-                  >
-                    {s.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              select
+              label="Servicio *"
+              value={opcionId}
+              onChange={(e) => setOpcionId(e.target.value)}
+              required
+              fullWidth
+              InputLabelProps={{
+                style: { color: "#FF6B9D", fontFamily: FUENTE },
+              }}
+              InputProps={inputCommon}
+              SelectProps={{
+                MenuProps: { PaperProps: { style: { fontFamily: FUENTE } } },
+              }}
+            >
+              {servicios.map((s) => (
+                <MenuItem
+                  key={s.id}
+                  value={s.id}
+                  sx={{ fontFamily: FUENTE }}
+                >
+                  {s.nombre}
+                </MenuItem>
+              ))}
+            </TextField>
           )}
 
+          {/* Combo */}
           {tipo === "combo" && (
-            <FormControl fullWidth>
-              <InputLabel
-                id="combo-label"
-                sx={{ fontFamily: FUENTE, color: "#FF7BAA" }}
-              >
-                Combo
-              </InputLabel>
-              <Select
-                labelId="combo-label"
-                value={opcionId}
-                label="Combo"
-                onChange={(e) => setOpcionId(e.target.value)}
-                required
-                sx={{ fontFamily: FUENTE, backgroundColor: CREMA }}
-              >
-                {combos.map((c) => (
-                  <MenuItem
-                    key={c.id}
-                    value={c.id}
-                    sx={{ fontFamily: FUENTE }}
-                  >
-                    {c.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              select
+              label="Combo *"
+              value={opcionId}
+              onChange={(e) => setOpcionId(e.target.value)}
+              required
+              fullWidth
+              InputLabelProps={{
+                style: { color: "#FF6B9D", fontFamily: FUENTE },
+              }}
+              InputProps={inputCommon}
+              SelectProps={{
+                MenuProps: { PaperProps: { style: { fontFamily: FUENTE } } },
+              }}
+            >
+              {combos.map((c) => (
+                <MenuItem
+                  key={c.id}
+                  value={c.id}
+                  sx={{ fontFamily: FUENTE }}
+                >
+                  {c.nombre}
+                </MenuItem>
+              ))}
+            </TextField>
           )}
 
+          {/* Promoción */}
           {tipo === "promocion" && (
-            <FormControl fullWidth>
-              <InputLabel
-                id="promo-label"
-                sx={{ fontFamily: FUENTE, color: "#FF7BAA" }}
-              >
-                Promoción
-              </InputLabel>
-              <Select
-                labelId="promo-label"
-                value={opcionId}
-                label="Promoción"
-                onChange={(e) => setOpcionId(e.target.value)}
-                required
-                sx={{ fontFamily: FUENTE, backgroundColor: CREMA }}
-              >
-                {promos.map((p) => (
-                  <MenuItem
-                    key={p.id}
-                    value={p.id}
-                    sx={{ fontFamily: FUENTE }}
-                  >
-                    {p.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              select
+              label="Promoción *"
+              value={opcionId}
+              onChange={(e) => setOpcionId(e.target.value)}
+              required
+              fullWidth
+              InputLabelProps={{
+                style: { color: "#FF6B9D", fontFamily: FUENTE },
+              }}
+              InputProps={inputCommon}
+              SelectProps={{
+                MenuProps: { PaperProps: { style: { fontFamily: FUENTE } } },
+              }}
+            >
+              {promos.map((p) => (
+                <MenuItem
+                  key={p.id}
+                  value={p.id}
+                  sx={{ fontFamily: FUENTE }}
+                >
+                  {p.nombre}
+                </MenuItem>
+              ))}
+            </TextField>
           )}
 
           <Button
@@ -270,7 +275,8 @@ function NuevaReservaCliente() {
             variant="contained"
             sx={{
               mt: 2,
-              background: `linear-gradient(135deg, ${ROSA} 0%, ${ROSA_CLARO} 100%)`,
+              background:
+                "linear-gradient(135deg, #FF6B9D 0%, #FF8C94 100%)",
               color: "#fff",
               fontWeight: "bold",
               borderRadius: "30px",
@@ -278,7 +284,8 @@ function NuevaReservaCliente() {
               fontSize: "1.1rem",
               fontFamily: FUENTE,
               "&:hover": {
-                background: `linear-gradient(135deg, ${ROSA_CLARO} 0%, ${ROSA} 100%)`,
+                background:
+                  "linear-gradient(135deg, #FF8C94 0%, #FF6B9D 100%)",
               },
             }}
           >

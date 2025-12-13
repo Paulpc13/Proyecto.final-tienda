@@ -77,6 +77,7 @@ export const deletePromocion = (id) => api.delete(`/promociones/${id}/`);
 
 export const getHorarios = () => api.get('/horarios/');
 export const getHorario = (id) => api.get(`/horarios/${id}/`);
+export const getHorariosDisponibles = (fecha) => api.get(`/horarios/disponibles/?fecha=${fecha}`);
 export const createHorario = (data) => api.post('/horarios/', data);
 export const updateHorario = (id, data) => api.put(`/horarios/${id}/`, data);
 export const deleteHorario = (id) => api.delete(`/horarios/${id}/`);

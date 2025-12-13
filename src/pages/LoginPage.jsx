@@ -15,16 +15,19 @@ function LoginPage({ onLogin }) {
     try {
       // IMPORTANTE: los nombres de campo deben coincidir con tu API de Django.
       // Si en Django usas "username" y "password", cambia aquí los nombres.
-  const res = await login({
-  usuario,
-  clave,
-});
-      // Se asume que la API devuelve { token, is_admin, username }
-      const { token, is_admin, username } = res.data;
+      const res = await login({
+        usuario,
+        clave,
+      });
+      // Se asume que la API devuelve { id, token, is_admin, username }
+      const { id, token, is_admin, username } = res.data;
 
       // Guardar datos en localStorage para que los use el interceptor de apiService.js
       if (token) {
         localStorage.setItem('token', token);
+      }
+      if (id) {
+        localStorage.setItem('id', String(id)); // ID del usuario
       }
       localStorage.setItem('is_admin', String(is_admin ?? false));
       if (username) {

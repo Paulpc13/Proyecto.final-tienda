@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { getServicios } from '../apiService';
+import { getServicios, getCombos, getPromociones } from '../apiService';
 import {
   Container,
   Box,
@@ -13,6 +13,7 @@ import {
   Button,
   CircularProgress,
   Alert,
+  Chip,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CelebrationIcon from '@mui/icons-material/Celebration';
@@ -46,29 +47,47 @@ const serviceColors = [
 
 export default function PaginaInicio() {
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
   const isAdmin = localStorage.getItem('is_admin') === 'true';
+  
   const [servicios, setServicios] = useState([]);
+  const [combos, setCombos] = useState([]);
+  const [promociones, setPromociones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchServicios = async () => {
+    const fetchData = async () => {
       try {
-        const res = await getServicios();
-        setServicios(res.data);
+        const [serviciosRes, combosRes, promocionesRes] = await Promise.all([
+          getServicios(),
+          getCombos(),
+          getPromociones(),
+        ]);
+        setServicios(serviciosRes.data);
+        setCombos(combosRes.data);
+        setPromociones(promocionesRes.data);
         setLoading(false);
       } catch (err) {
-        setError('Error cargando servicios');
+        setError('Error cargando datos');
         setLoading(false);
       }
     };
-    fetchServicios();
+    fetchData();
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('is_admin');
     navigate('/login');
+  };
+
+  const handleReservar = () => {
+    if (!token) {
+      navigate('/login'); // Redirige a login si no está autenticado
+    } else {
+      navigate('/reservas/nueva'); // Va al formulario de reserva si está logueado
+    }
   };
 
   return (
@@ -116,58 +135,111 @@ export default function PaginaInicio() {
             fontWeight: "bold",
             fontSize: "16px",
           }}>
-            <NavLink to="/reservas" style={({ isActive }) => ({
-              color: isActive ? "#fff" : "#fff",
-              textDecoration: isActive ? "underline" : "none",
-              opacity: isActive ? 1 : 0.8,
+            <a href="#servicios" style={{
+              color: "#fff",
+              textDecoration: "none",
+              opacity: 0.9,
               transition: "all 0.3s",
-            })}>
-              📅 Reservas
-            </NavLink>
-            <NavLink to="/combos" style={({ isActive }) => ({
-              color: isActive ? "#fff" : "#fff",
-              textDecoration: isActive ? "underline" : "none",
-              opacity: isActive ? 1 : 0.8,
-            })}>
+            }}>
+              🎈 Servicios
+            </a>
+            <a href="#combos" style={{
+              color: "#fff",
+              textDecoration: "none",
+              opacity: 0.9,
+            }}>
               🎁 Combos
-            </NavLink>
-            <NavLink to="/promociones" style={({ isActive }) => ({
-              color: isActive ? "#fff" : "#fff",
-              textDecoration: isActive ? "underline" : "none",
-              opacity: isActive ? 1 : 0.8,
-            })}>
+            </a>
+            <a href="#promociones" style={{
+              color: "#fff",
+              textDecoration: "none",
+              opacity: 0.9,
+            }}>
               🎊 Promociones
-            </NavLink>
-            {isAdmin && (
-              <NavLink to="/admin" style={({ isActive }) => ({
-                color: isActive ? "#fff" : "#fff",
+            </a>
+            {token && (
+              <NavLink to="/reservas" style={({ isActive }) => ({
+                color: "#fff",
                 textDecoration: isActive ? "underline" : "none",
-                opacity: isActive ? 1 : 0.8,
+                opacity: isActive ? 1 : 0.9,
               })}>
-                ⚙️ Admin
+                📅 Mis Reservas
               </NavLink>
+            )}
+            {isAdmin && (
+              <a href="http://127.0.0.1:8000/admin/" target="_blank" rel="noopener noreferrer" style={{
+                color: "#fff",
+                textDecoration: "none",
+                opacity: 0.9,
+              }}>
+                ⚙️ Admin
+              </a>
             )}
           </nav>
 
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: "10px 25px",
-              background: "#fff",
-              color: "#FF6B9D",
-              border: "none",
-              fontWeight: "bold",
-              borderRadius: "25px",
-              cursor: "pointer",
-              fontSize: "14px",
-              transition: "all 0.3s",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            }}
-            onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
-            onMouseOut={(e) => e.target.style.transform = "scale(1)"}
-          >
-            🚪 Salir
-          </button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            {!token ? (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  style={{
+                    padding: "10px 25px",
+                    background: "#fff",
+                    color: "#FF6B9D",
+                    border: "none",
+                    fontWeight: "bold",
+                    borderRadius: "25px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    transition: "all 0.3s",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
+                  onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+                >
+                  🔑 Iniciar Sesión
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  style={{
+                    padding: "10px 25px",
+                    background: "transparent",
+                    color: "#fff",
+                    border: "2px solid #fff",
+                    fontWeight: "bold",
+                    borderRadius: "25px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    transition: "all 0.3s",
+                  }}
+                  onMouseOver={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
+                  onMouseOut={(e) => e.target.style.background = "transparent"}
+                >
+                  📝 Registrarse
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: "10px 25px",
+                  background: "#fff",
+                  color: "#FF6B9D",
+                  border: "none",
+                  fontWeight: "bold",
+                  borderRadius: "25px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  transition: "all 0.3s",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                }}
+                onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
+                onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+              >
+                🚪 Salir
+              </button>
+            )}
+          </div>
         </header>
 
         {/* Banner Hero */}
@@ -180,15 +252,24 @@ export default function PaginaInicio() {
           boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
         }}>
           <Typography variant="h1" sx={{ marginBottom: "20px", textShadow: "3px 3px 6px rgba(0,0,0,0.3)" }}>
-            ¡Servicios Destacados! ✨
+            ¡Bienvenido a Burbujitas de Colores! ✨
           </Typography>
           <Typography variant="h5" sx={{ opacity: 0.95, maxWidth: "600px", margin: "0 auto" }}>
-            Descubre nuestros increíbles servicios para hacer tu fiesta única y memorable
+            Descubre nuestros increíbles servicios, combos y promociones para hacer tu fiesta única
           </Typography>
         </Box>
 
         {/* Sección de Servicios */}
-        <Container maxWidth="lg" sx={{ paddingY: 4, marginBottom: "40px" }}>
+        <Container maxWidth="lg" sx={{ paddingY: 4, marginBottom: "40px" }} id="servicios">
+          <Typography variant="h3" sx={{
+            textAlign: "center",
+            color: "#FF6B9D",
+            fontWeight: "bold",
+            marginBottom: "30px",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            🎈 Nuestros Servicios
+          </Typography>
           {loading && (
             <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
               <CircularProgress size={50} />
@@ -275,7 +356,7 @@ export default function PaginaInicio() {
                             background: "linear-gradient(135deg, #FF8C94 0%, #FF6B9D 100%)",
                           },
                         }}
-                        onClick={() => navigate("/reservas")}
+                        onClick={handleReservar}
                       >
                         🎯 Reservar
                       </Button>
@@ -283,19 +364,18 @@ export default function PaginaInicio() {
                         fullWidth
                         variant="outlined"
                         sx={{
-                          borderColor: "#FFC74F",
-                          color: "#FFC74F",
+                          borderColor: "#4ECDC4",
+                          color: "#4ECDC4",
                           fontWeight: "bold",
                           borderRadius: "15px",
                           textTransform: "none",
                           fontSize: "15px",
                           "&:hover": {
-                            background: "rgba(255, 199, 79, 0.1)",
+                            background: "rgba(78, 205, 196, 0.1)",
                           },
                         }}
-                        onClick={() => navigate("/categorias")}
                       >
-                        📋 Detalles
+                        📋 Ver más
                       </Button>
                     </CardActions>
                   </Card>
@@ -317,6 +397,260 @@ export default function PaginaInicio() {
               </Typography>
               <Typography variant="body1" sx={{ color: "#666", mt: 2 }}>
                 Vuelve pronto para ver nuestros increíbles servicios
+              </Typography>
+            </Box>
+          )}
+        </Container>
+
+        {/* Sección de Combos */}
+        <Container maxWidth="lg" sx={{ paddingY: 4, marginBottom: "40px" }} id="combos">
+          <Typography variant="h3" sx={{
+            textAlign: "center",
+            color: "#FFC74F",
+            fontWeight: "bold",
+            marginBottom: "30px",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            🎁 Combos Especiales
+          </Typography>
+
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
+              <CircularProgress size={50} />
+            </Box>
+          )}
+
+          {combos.length > 0 && (
+            <Grid container spacing={3}>
+              {combos.map((combo, index) => (
+                <Grid item xs={12} sm={6} md={4} key={combo.id}>
+                  <Card
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      borderRadius: "20px",
+                      overflow: "hidden",
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                      "&:hover": {
+                        transform: "translateY(-15px)",
+                        boxShadow: "0 20px 48px rgba(0,0,0,0.2)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        height: 250,
+                        background: "linear-gradient(135deg, #FFC74F 0%, #FFE66D 100%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontSize: "80px",
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <span style={{
+                        fontSize: "100px",
+                        filter: "drop-shadow(3px 3px 6px rgba(0,0,0,0.2))",
+                      }}>
+                        🎁
+                      </span>
+                    </Box>
+
+                    <CardContent sx={{ flexGrow: 1, pb: 0 }}>
+                      <Typography variant="h5" component="div" sx={{
+                        fontWeight: "bold",
+                        color: "#FFC74F",
+                        marginBottom: "10px",
+                      }}>
+                        {combo.nombre}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" sx={{ marginBottom: "15px" }}>
+                        {combo.descripcion || "Combo especial con múltiples servicios"}
+                      </Typography>
+                      <Typography variant="h6" sx={{
+                        color: "#FF6B9D",
+                        fontWeight: "bold",
+                        fontSize: "24px",
+                      }}>
+                        ${combo.precio_total}
+                      </Typography>
+                    </CardContent>
+
+                    <CardActions sx={{ gap: "10px", pt: "20px", pb: "20px", px: "16px" }}>
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        sx={{
+                          background: "linear-gradient(135deg, #FFC74F 0%, #FFE66D 100%)",
+                          color: "#fff",
+                          fontWeight: "bold",
+                          borderRadius: "15px",
+                          textTransform: "none",
+                          fontSize: "15px",
+                          "&:hover": {
+                            background: "linear-gradient(135deg, #FFE66D 0%, #FFC74F 100%)",
+                          },
+                        }}
+                        onClick={handleReservar}
+                      >
+                        🎯 Reservar Combo
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+
+          {combos.length === 0 && !loading && !error && (
+            <Box sx={{
+              textAlign: "center",
+              py: 5,
+              background: "rgba(255, 199, 79, 0.1)",
+              borderRadius: "15px",
+              padding: "40px",
+            }}>
+              <Typography variant="h5" sx={{ color: "#FFC74F", fontWeight: "bold" }}>
+                🎁 Aún no hay combos disponibles
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#666", mt: 2 }}>
+                Vuelve pronto para ver nuestros paquetes especiales
+              </Typography>
+            </Box>
+          )}
+        </Container>
+
+        {/* Sección de Promociones */}
+        <Container maxWidth="lg" sx={{ paddingY: 4, marginBottom: "40px" }} id="promociones">
+          <Typography variant="h3" sx={{
+            textAlign: "center",
+            color: "#4ECDC4",
+            fontWeight: "bold",
+            marginBottom: "30px",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            🎊 Promociones Activas
+          </Typography>
+
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
+              <CircularProgress size={50} />
+            </Box>
+          )}
+
+          {promociones.length > 0 && (
+            <Grid container spacing={3}>
+              {promociones.map((promo, index) => (
+                <Grid item xs={12} sm={6} md={4} key={promo.id}>
+                  <Card
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      borderRadius: "20px",
+                      overflow: "hidden",
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                      border: "3px solid #4ECDC4",
+                      "&:hover": {
+                        transform: "translateY(-15px)",
+                        boxShadow: "0 20px 48px rgba(0,0,0,0.2)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        height: 250,
+                        background: "linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontSize: "80px",
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <Chip
+                        label={`${promo.descuento}% OFF`}
+                        sx={{
+                          position: "absolute",
+                          top: 15,
+                          right: 15,
+                          background: "#FF6348",
+                          color: "#fff",
+                          fontWeight: "bold",
+                          fontSize: "16px",
+                          padding: "5px",
+                        }}
+                      />
+                      <span style={{
+                        fontSize: "100px",
+                        filter: "drop-shadow(3px 3px 6px rgba(0,0,0,0.2))",
+                      }}>
+                        🎊
+                      </span>
+                    </Box>
+
+                    <CardContent sx={{ flexGrow: 1, pb: 0 }}>
+                      <Typography variant="h5" component="div" sx={{
+                        fontWeight: "bold",
+                        color: "#4ECDC4",
+                        marginBottom: "10px",
+                      }}>
+                        {promo.nombre}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" sx={{ marginBottom: "15px" }}>
+                        {promo.descripcion || "Promoción especial por tiempo limitado"}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: "#666", fontStyle: "italic" }}>
+                        Válido hasta: {promo.fecha_fin ? new Date(promo.fecha_fin).toLocaleDateString() : 'Sin límite'}
+                      </Typography>
+                    </CardContent>
+
+                    <CardActions sx={{ gap: "10px", pt: "20px", pb: "20px", px: "16px" }}>
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        sx={{
+                          background: "linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)",
+                          color: "#fff",
+                          fontWeight: "bold",
+                          borderRadius: "15px",
+                          textTransform: "none",
+                          fontSize: "15px",
+                          "&:hover": {
+                            background: "linear-gradient(135deg, #44A08D 0%, #4ECDC4 100%)",
+                          },
+                        }}
+                        onClick={handleReservar}
+                      >
+                        🎯 Aprovechar Ahora
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+
+          {promociones.length === 0 && !loading && !error && (
+            <Box sx={{
+              textAlign: "center",
+              py: 5,
+              background: "rgba(78, 205, 196, 0.1)",
+              borderRadius: "15px",
+              padding: "40px",
+            }}>
+              <Typography variant="h5" sx={{ color: "#4ECDC4", fontWeight: "bold" }}>
+                🎊 No hay promociones activas
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#666", mt: 2 }}>
+                Mantente atento a nuestras ofertas especiales
               </Typography>
             </Box>
           )}

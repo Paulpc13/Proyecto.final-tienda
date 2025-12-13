@@ -19,6 +19,13 @@ import {
 
 const FUENTE = '"Comic Sans MS", "Trebuchet MS", cursive, sans-serif';
 
+// formatear en USD [web:159][web:169]
+const formatUSD = (value) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(value || 0);
+
 function NuevaReservaCliente() {
   const navigate = useNavigate();
 
@@ -30,6 +37,11 @@ function NuevaReservaCliente() {
   const [combos, setCombos] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [promos, setPromos] = useState([]);
+
+  // NUEVO: precio y carrito
+  const [precioSeleccionado, setPrecioSeleccionado] = useState(0);
+  const [carrito, setCarrito] = useState([]);
+  const [totalCarrito, setTotalCarrito] = useState(0);
 
   useEffect(() => {
     async function cargarOpciones() {
@@ -60,7 +72,7 @@ function NuevaReservaCliente() {
       servicio: tipo === "servicio" ? opcionId : null,
       combo: tipo === "combo" ? opcionId : null,
       promocion: tipo === "promocion" ? opcionId : null,
-      total: 0,
+      total: totalCarrito || precioSeleccionado || 0,
       estado: "PENDIENTE",
     };
 
@@ -80,6 +92,47 @@ function NuevaReservaCliente() {
       color: "#444",
       textAlign: "left",
     },
+  };
+
+  // cuando cambias tipo, reinicia selección y precio
+  const handleChangeTipo = (e) => {
+    setTipo(e.target.value);
+    setOpcionId("");
+    setPrecioSeleccionado(0);
+  };
+
+  // función genérica para actualizar opción + precio
+  const handleChangeOpcion = (e, lista) => {
+    const id = e.target.value;
+    setOpcionId(id);
+
+    // busca el objeto en la lista y usa su campo "precio"
+    const item = lista.find((x) => String(x.id) === String(id));
+    setPrecioSeleccionado(item ? item.precio : 0);
+  };
+
+  // botón Agregar al carrito
+  const handleAgregarCarrito = () => {
+    if (!tipo || !opcionId || !precioSeleccionado) return;
+
+    let lista;
+    if (tipo === "servicio") lista = servicios;
+    if (tipo === "combo") lista = combos;
+    if (tipo === "promocion") lista = promos;
+
+    const item = lista.find((x) => String(x.id) === String(opcionId));
+    if (!item) return;
+
+    const nuevoItem = {
+      id: `${tipo}-${item.id}`,
+      tipo,
+      refId: item.id,
+      nombre: item.nombre,
+      precio: item.precio,
+    };
+
+    setCarrito((prev) => [...prev, nuevoItem]);
+    setTotalCarrito((prev) => prev + nuevoItem.precio);
   };
 
   return (
@@ -165,10 +218,7 @@ function NuevaReservaCliente() {
             select
             label="¿Qué quieres reservar? *"
             value={tipo}
-            onChange={(e) => {
-              setTipo(e.target.value);
-              setOpcionId("");
-            }}
+            onChange={handleChangeTipo}
             required
             fullWidth
             InputLabelProps={{
@@ -196,7 +246,7 @@ function NuevaReservaCliente() {
               select
               label="Servicio *"
               value={opcionId}
-              onChange={(e) => setOpcionId(e.target.value)}
+              onChange={(e) => handleChangeOpcion(e, servicios)}
               required
               fullWidth
               InputLabelProps={{
@@ -225,7 +275,7 @@ function NuevaReservaCliente() {
               select
               label="Combo *"
               value={opcionId}
-              onChange={(e) => setOpcionId(e.target.value)}
+              onChange={(e) => handleChangeOpcion(e, combos)}
               required
               fullWidth
               InputLabelProps={{
@@ -254,7 +304,7 @@ function NuevaReservaCliente() {
               select
               label="Promoción *"
               value={opcionId}
-              onChange={(e) => setOpcionId(e.target.value)}
+              onChange={(e) => handleChangeOpcion(e, promos)}
               required
               fullWidth
               InputLabelProps={{
@@ -277,6 +327,44 @@ function NuevaReservaCliente() {
             </TextField>
           )}
 
+          {/* Precio actual */}
+          <Typography
+            sx={{
+              mt: 1,
+              fontFamily: FUENTE,
+              fontSize: "1.05rem",
+              color: "#444",
+              textAlign: "right",
+            }}
+          >
+            Precio seleccionado: {formatUSD(precioSeleccionado)}
+          </Typography>
+
+          {/* Botón Agregar al carrito */}
+          <Button
+            type="button"
+            onClick={handleAgregarCarrito}
+            sx={{
+              mt: 1,
+              mb: 1,
+              alignSelf: "flex-end",
+              background:
+                "linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)",
+              color: "#fff",
+              fontWeight: "bold",
+              borderRadius: "25px",
+              px: 4,
+              fontFamily: FUENTE,
+              "&:hover": {
+                background:
+                  "linear-gradient(135deg, #FF69B4 0%, #FF1493 100%)",
+              },
+            }}
+          >
+            Agregar al carrito
+          </Button>
+
+          {/* Botón Confirmar */}
           <Button
             type="submit"
             variant="contained"
@@ -298,6 +386,45 @@ function NuevaReservaCliente() {
           >
             Confirmar reserva
           </Button>
+
+          {/* Resumen de carrito */}
+          {carrito.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <Typography
+                sx={{
+                  fontFamily: FUENTE,
+                  fontWeight: "bold",
+                  mb: 1,
+                  color: "#FF6B9D",
+                }}
+              >
+                Carrito
+              </Typography>
+              {carrito.map((item) => (
+                <Typography
+                  key={item.id}
+                  sx={{
+                    fontFamily: FUENTE,
+                    fontSize: "0.95rem",
+                    color: "#444",
+                  }}
+                >
+                  {item.tipo.toUpperCase()}: {item.nombre} -{" "}
+                  {formatUSD(item.precio)}
+                </Typography>
+              ))}
+              <Typography
+                sx={{
+                  mt: 1,
+                  fontFamily: FUENTE,
+                  fontWeight: "bold",
+                  color: "#444",
+                }}
+              >
+                Total: {formatUSD(totalCarrito)}
+              </Typography>
+            </Box>
+          )}
         </Box>
       </Container>
     </Box>

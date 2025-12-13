@@ -25,10 +25,10 @@ api.interceptors.request.use(
 );
 
 // Interceptor de errores global (se ejecuta después de la request)
+// NO lanza alertas automáticos - cada página maneja sus propios errores
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    alert(error?.response?.data?.message || 'Error de conexión con el servidor.');
     return Promise.reject(error);
   }
 );

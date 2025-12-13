@@ -19,12 +19,12 @@ import {
 
 const FUENTE = '"Comic Sans MS", "Trebuchet MS", cursive, sans-serif';
 
-// formatear en USD [web:159][web:169]
+// Formatear en USD [web:159][web:169]
 const formatUSD = (value) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(value || 0);
+  }).format(Number(value || 0));
 
 function NuevaReservaCliente() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ function NuevaReservaCliente() {
   const [servicios, setServicios] = useState([]);
   const [promos, setPromos] = useState([]);
 
-  // NUEVO: precio y carrito
+  // Precio y carrito
   const [precioSeleccionado, setPrecioSeleccionado] = useState(0);
   const [carrito, setCarrito] = useState([]);
   const [totalCarrito, setTotalCarrito] = useState(0);
@@ -94,26 +94,38 @@ function NuevaReservaCliente() {
     },
   };
 
-  // cuando cambias tipo, reinicia selección y precio
   const handleChangeTipo = (e) => {
     setTipo(e.target.value);
     setOpcionId("");
     setPrecioSeleccionado(0);
   };
 
-  // función genérica para actualizar opción + precio
+  // Calcula precio usando los campos reales: precio_base / precio_combo [file:194]
   const handleChangeOpcion = (e, lista) => {
     const id = e.target.value;
     setOpcionId(id);
 
-    // busca el objeto en la lista y usa su campo "precio"
     const item = lista.find((x) => String(x.id) === String(id));
-    setPrecioSeleccionado(item ? item.precio : 0);
+    if (!item) {
+      setPrecioSeleccionado(0);
+      return;
+    }
+
+    let precio = 0;
+    if (tipo === "servicio") {
+      precio = Number(item.precio_base);
+    } else if (tipo === "combo") {
+      precio = Number(item.precio_combo);
+    } else if (tipo === "promocion") {
+      // ajusta esto según cómo manejes el precio de la promo
+      precio = Number(item.descuento_monto || 0);
+    }
+
+    setPrecioSeleccionado(precio);
   };
 
-  // botón Agregar al carrito
   const handleAgregarCarrito = () => {
-    if (!tipo || !opcionId || !precioSeleccionado) return;
+    if (!tipo || !opcionId) return;
 
     let lista;
     if (tipo === "servicio") lista = servicios;
@@ -123,16 +135,26 @@ function NuevaReservaCliente() {
     const item = lista.find((x) => String(x.id) === String(opcionId));
     if (!item) return;
 
+    let precio = 0;
+    if (tipo === "servicio") {
+      precio = Number(item.precio_base);
+    } else if (tipo === "combo") {
+      precio = Number(item.precio_combo);
+    } else if (tipo === "promocion") {
+      precio = Number(item.descuento_monto || 0);
+    }
+
     const nuevoItem = {
       id: `${tipo}-${item.id}`,
       tipo,
       refId: item.id,
       nombre: item.nombre,
-      precio: item.precio,
+      precio,
     };
 
     setCarrito((prev) => [...prev, nuevoItem]);
-    setTotalCarrito((prev) => prev + nuevoItem.precio);
+    setTotalCarrito((prev) => prev + precio);
+    setPrecioSeleccionado(precio);
   };
 
   return (
@@ -258,11 +280,7 @@ function NuevaReservaCliente() {
               }}
             >
               {servicios.map((s) => (
-                <MenuItem
-                  key={s.id}
-                  value={s.id}
-                  sx={{ fontFamily: FUENTE }}
-                >
+                <MenuItem key={s.id} value={s.id} sx={{ fontFamily: FUENTE }}>
                   {s.nombre}
                 </MenuItem>
               ))}
@@ -287,11 +305,7 @@ function NuevaReservaCliente() {
               }}
             >
               {combos.map((c) => (
-                <MenuItem
-                  key={c.id}
-                  value={c.id}
-                  sx={{ fontFamily: FUENTE }}
-                >
+                <MenuItem key={c.id} value={c.id} sx={{ fontFamily: FUENTE }}>
                   {c.nombre}
                 </MenuItem>
               ))}
@@ -316,11 +330,7 @@ function NuevaReservaCliente() {
               }}
             >
               {promos.map((p) => (
-                <MenuItem
-                  key={p.id}
-                  value={p.id}
-                  sx={{ fontFamily: FUENTE }}
-                >
+                <MenuItem key={p.id} value={p.id} sx={{ fontFamily: FUENTE }}>
                   {p.nombre}
                 </MenuItem>
               ))}

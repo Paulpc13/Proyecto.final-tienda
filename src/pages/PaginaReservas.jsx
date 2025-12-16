@@ -6,7 +6,6 @@ import {
   Typography,
   Button,
   Box,
-  CircularProgress,
   Alert,
   Chip,
   IconButton,
@@ -16,21 +15,14 @@ import {
   ListItemText,
   Divider,
 } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { ThemeProvider } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-
-const theme = createTheme({
-  palette: {
-    primary: { main: '#FF6B9D' },
-    secondary: { main: '#FFC74F' },
-    success: { main: '#4ECDC4' },
-  },
-  typography: {
-    fontFamily: '"Comic Sans MS", "Trebuchet MS", cursive, sans-serif',
-  },
-});
+import { theme } from '../theme/theme';
+import PageContainer from '../components/layout/PageContainer';
+import BackButton from '../components/BackButton';
+import LoadingSpinner from '../components/LoadingSpinner';
+import EmptyState from '../components/EmptyState';
 
 function PaginaReservas() {
   const navigate = useNavigate();
@@ -78,31 +70,10 @@ function PaginaReservas() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{
-        minHeight: '100vh',
-        width: '100vw',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: '#fff9e6',
-        overflow: 'auto',
-        py: 4,
-      }}>
-        <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/')}
-            sx={{
-              color: '#FF6B9D',
-              fontWeight: 'bold',
-              '&:hover': { background: 'rgba(255, 107, 157, 0.1)' }
-            }}
-          >
-            Volver al Inicio
-          </Button>
+      <PageContainer>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <BackButton />
           
           <Button
             variant="contained"
@@ -133,33 +104,29 @@ function PaginaReservas() {
         </Typography>
 
         {!loading && !error && reservas.length === 0 && (
-          <Box sx={{
-            textAlign: 'center',
-            py: 8,
-            background: 'rgba(255, 107, 157, 0.1)',
-            borderRadius: '15px',
-          }}>
-            <Typography variant="h5" sx={{ color: '#FF6B9D', fontWeight: 'bold', mb: 2 }}>
-              🎈 No tienes reservas por el momento
-            </Typography>
-            <Typography variant="body1" sx={{ color: '#666', mb: 3 }}>
-              ¡Explora nuestros servicios y haz tu primera reserva!
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={() => navigate('/')}
-              sx={{
-                background: 'linear-gradient(135deg, #FF6B9D 0%, #FF8C94 100%)',
-                color: '#fff',
-                fontWeight: 'bold',
-                borderRadius: '25px',
-                px: 4,
-                py: 1.5,
-              }}
-            >
-              Ver Servicios
-            </Button>
-          </Box>
+          <>
+            <EmptyState
+              icon="🎈"
+              message="No tienes reservas por el momento"
+              subtitle="¡Explora nuestros servicios y haz tu primera reserva!"
+            />
+            <Box sx={{ textAlign: 'center', mt: 3 }}>
+              <Button
+                variant="contained"
+                onClick={() => navigate('/')}
+                sx={{
+                  background: 'linear-gradient(135deg, #FF6B9D 0%, #FF8C94 100%)',
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  borderRadius: '25px',
+                  px: 4,
+                  py: 1.5,
+                }}
+              >
+                Ver Servicios
+              </Button>
+            </Box>
+          </>
         )}
 
         {!loading && !error && reservas.length > 0 && (
@@ -219,10 +186,10 @@ function PaginaReservas() {
           </Paper>
         )}
 
-        {loading && <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>}
+        {loading && <LoadingSpinner message="Cargando reservas..." />}
         {error && <Alert severity="error">{error}</Alert>}
         </Container>
-      </Box>
+      </PageContainer>
     </ThemeProvider>
     
   );

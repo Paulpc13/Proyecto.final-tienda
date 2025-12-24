@@ -13,6 +13,14 @@ import PaginaCancelaciones from './pages/PaginaCancelaciones';
 import PaginaCarrito from './pages/PaginaCarrito';
 import PaginaConfirmacion from './pages/PaginaConfirmacion';
 
+import QuienesSomos from "./pages/QuienesSomos";
+import Terminos from "./pages/Terminos";
+import Privacidad from "./pages/Privacidad";
+import SolicitarServicio from "./pages/SolicitarServicio";
+import ArmaTuFiesta from "./pages/ArmaTuFiesta";
+import Ofertas from "./pages/Ofertas";
+import Proveedor from "./pages/Proveedor";
+
 
 import './App.css';
 import { AuthContext } from './auth/AuthContext';
@@ -38,6 +46,15 @@ function App() {
 
 					{/* Ruta por defecto */}
 					<Route path="*" element={<Navigate to="/" replace />} />
+
+					 {/* rutas del footer */}
+		            <Route path="/quienes-somos" element={<QuienesSomos />} />
+                    <Route path="/terminos" element={<Terminos />} />
+                    <Route path="/privacidad" element={<Privacidad />} />
+		            <Route path="/solicitar-servicio" element={<SolicitarServicio />} />
+                    <Route path="/arma-tu-fiesta" element={<ArmaTuFiesta />} />
+                    <Route path="/ofertas" element={<Ofertas />} />
+                    <Route path="/proveedor" element={<Proveedor />} />
 				</Routes>
 			</AuthProvider>
 		</ErrorBoundary>

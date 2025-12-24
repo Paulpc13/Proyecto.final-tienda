@@ -12,7 +12,7 @@ import ReservaModal from '../components/ReservaModal';
 export default function PaginaInicio() {
   const navigate = useNavigate();
   const { token, logout, isAdmin } = useContext(AuthContext);
-  
+
   const [servicios, setServicios] = useState([]);
   const [combos, setCombos] = useState([]);
   const [promociones, setPromociones] = useState([]);
@@ -45,7 +45,7 @@ export default function PaginaInicio() {
       }
     };
     fetchData();
-    
+
     // Cargar contador del carrito si hay token
     if (token) {
       fetchCarritoCount();
@@ -55,7 +55,9 @@ export default function PaginaInicio() {
   const fetchCarritoCount = async () => {
     try {
       const res = await getCarrito();
-      setCarritoCount(res.data.length || 0);
+      // La API devuelve una LISTA de carritos (aunque sea uno solo o vacío)
+      const cart = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : null;
+      setCarritoCount(cart?.items?.length || 0);
     } catch (err) {
       // Si falla (endpoint no implementado), usar 0
       setCarritoCount(0);
@@ -74,19 +76,19 @@ export default function PaginaInicio() {
         item_id: item.id,
         cantidad: 1,
       };
-      
-      console.log('--- ENVIANDO A AGREGAR CARRITO ---');
-      console.log('Datos enviados:', data); 
 
-      await addToCarrito(data); 
-      
+      console.log('--- ENVIANDO A AGREGAR CARRITO ---');
+      console.log('Datos enviados:', data);
+
+      await addToCarrito(data);
+
       setSnackbarMsg(`✅ ${item.nombre} agregado al carrito`);
       setSnackbarOpen(true);
       fetchCarritoCount();
     } catch (err) {
       const errorMsg = err.response?.data?.error || err.message;
       console.error("Error al agregar al carrito:", errorMsg);
-      
+
       setSnackbarMsg(`⚠️ Error: ${errorMsg}`);
       setSnackbarOpen(true);
     }
@@ -102,7 +104,7 @@ export default function PaginaInicio() {
       navigate('/login');
       return;
     }
-    
+
     // Abrir modal con el item seleccionado
     setSelectedItem(item);
     setSelectedTipo(tipo);
@@ -131,11 +133,11 @@ export default function PaginaInicio() {
         boxSizing: "border-box",
         overflow: "auto",
       }}>
-        <Header 
-          token={token} 
-          isAdmin={isAdmin} 
-          carritoCount={carritoCount} 
-          onLogout={handleLogout} 
+        <Header
+          token={token}
+          isAdmin={isAdmin}
+          carritoCount={carritoCount}
+          onLogout={handleLogout}
         />
 
         {/* Banner Hero */}
@@ -215,14 +217,14 @@ export default function PaginaInicio() {
           <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
             🎉 BURBUJITAS DE COLORES 🎉
 
-        {/* Modal de Reserva */}
-        <ReservaModal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          item={selectedItem}
-          tipo={selectedTipo}
-          onReservaCreada={handleReservaCreada}
-        />
+            {/* Modal de Reserva */}
+            <ReservaModal
+              open={modalOpen}
+              onClose={() => setModalOpen(false)}
+              item={selectedItem}
+              tipo={selectedTipo}
+              onReservaCreada={handleReservaCreada}
+            />
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9 }}>
             Haz que tu fiesta sea inolvidable • Diversión garantizada • ¡Contacta con nosotros!

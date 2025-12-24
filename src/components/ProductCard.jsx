@@ -21,7 +21,7 @@ const serviceColors = [
 
 export default function ProductCard({ item, tipo, index, onReservar, onAddToCarrito }) {
   const getIcon = () => {
-    switch(tipo) {
+    switch (tipo) {
       case 'servicio': return '🎈';
       case 'combo': return '🎁';
       case 'promocion': return '🎊';
@@ -30,7 +30,7 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
   };
 
   const getColor = () => {
-    switch(tipo) {
+    switch (tipo) {
       case 'servicio': return '#FF6B9D';
       case 'combo': return '#FFC74F';
       case 'promocion': return '#4ECDC4';
@@ -39,7 +39,7 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
   };
 
   const getGradient = () => {
-    switch(tipo) {
+    switch (tipo) {
       case 'servicio': return serviceColors[index % serviceColors.length];
       case 'combo': return 'linear-gradient(135deg, #FFC74F 0%, #FFE66D 100%)';
       case 'promocion': return 'linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)';
@@ -47,7 +47,16 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
     }
   };
 
-  const precio = item.precio_base || item.precio_total || 0;
+  const precio = item.precio_base || item.precio_combo || item.precio_total || 0;
+
+  const getPriceDisplay = () => {
+    if (tipo === 'promocion') {
+      if (item.descuento_porcentaje > 0) return `${item.descuento_porcentaje}% OFF`;
+      if (item.descuento_monto > 0) return `$${item.descuento_monto} OFF`;
+      return 'Oferta';
+    }
+    return `$${precio}`;
+  };
 
   return (
     <Card
@@ -70,8 +79,8 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
       <Box
         sx={{
           height: 250,
-          background: item.imagen 
-            ? `url(${item.imagen}) center/cover no-repeat` 
+          background: item.imagen
+            ? `url(${item.imagen}) center/cover no-repeat`
             : getGradient(),
           display: "flex",
           alignItems: "center",
@@ -82,9 +91,9 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
           overflow: "hidden",
         }}
       >
-        {tipo === 'promocion' && item.descuento && (
+        {tipo === 'promocion' && item.descuento_porcentaje && (
           <Chip
-            label={`${item.descuento}% OFF`}
+            label={`${item.descuento_porcentaje}% OFF`}
             sx={{
               position: "absolute",
               top: 15,
@@ -129,7 +138,7 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
           fontWeight: "bold",
           fontSize: "24px",
         }}>
-          ${precio}
+          {getPriceDisplay()}
         </Typography>
       </CardContent>
 

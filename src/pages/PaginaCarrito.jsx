@@ -68,7 +68,6 @@ function PaginaCarrito() {
 
   const handleReservaCreada = (codigo) => {
     setModalOpen(false); // CERRAR MODAL
-    alert(`✅ Reserva creada exitosamente`);
   };
 
   // Crear un objeto "carrito" para pasar al modal
@@ -84,7 +83,7 @@ function PaginaCarrito() {
       <PageContainer>
         <Container maxWidth="lg" sx={{ py: 4 }}>
           <BackButton />
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, mt: 2 }}>
             <Typography variant="h3" sx={{
               color: '#FF6B9D',
@@ -97,7 +96,7 @@ function PaginaCarrito() {
               Mi Carrito
             </Typography>
             {items.length > 0 && (
-              <Chip 
+              <Chip
                 label={`${items.length} ${items.length === 1 ? 'item' : 'items'}`}
                 color="primary"
                 sx={{ fontSize: '1rem', fontWeight: 'bold' }}
@@ -161,9 +160,9 @@ function PaginaCarrito() {
                         <Typography variant="h5" sx={{ color: '#FFC74F', fontWeight: 'bold', minWidth: '80px', textAlign: 'right' }}>
                           ${parseFloat(item.subtotal).toFixed(2)}
                         </Typography>
-                        <IconButton 
+                        <IconButton
                           onClick={() => handleDelete(item.id)}
-                          sx={{ 
+                          sx={{
                             color: '#FF6348',
                             background: 'rgba(255, 99, 72, 0.1)',
                             '&:hover': { background: 'rgba(255, 99, 72, 0.2)' }
@@ -180,7 +179,7 @@ function PaginaCarrito() {
               <Divider sx={{ my: 3 }} />
 
               {/* Resumen */}
-              <Box sx={{ 
+              <Box sx={{
                 background: 'linear-gradient(135deg, #FFE6F0 0%, #FFF9E6 100%)',
                 borderRadius: '15px',
                 p: 3,
@@ -230,6 +229,7 @@ function PaginaCarrito() {
             open={modalOpen}
             onClose={() => setModalOpen(false)}
             item={carritoItem}
+            cartItems={items}
             tipo="servicio"
             onReservaCreada={handleReservaCreada}
           />

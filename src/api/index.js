@@ -2,7 +2,7 @@
 
 export { login, register } from './auth';
 export { getUsuarios, getUsuario, createUsuario, updateUsuario, deleteUsuario } from './usuarios';
-export { 
+export {
   getServicios, getServicio, createServicio, updateServicio, deleteServicio,
   getCategorias, getCategoria, createCategoria, updateCategoria, deleteCategoria,
   getCombos, getCombo, createCombo, updateCombo, deleteCombo,
@@ -13,5 +13,6 @@ export {
   getReservas, getReserva, createReserva, updateReserva, deleteReserva,
   getPagos, getPago, createPago, updatePago, deletePago,
   getCancelaciones, getCancelacion, createCancelacion, updateCancelacion, deleteCancelacion,
+  checkoutPago,
 } from './reservas';
 export { getCarrito, addToCarrito, deleteItemCarrito, confirmarCarrito } from './carrito';

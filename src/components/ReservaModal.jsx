@@ -22,12 +22,13 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function ReservaModal({ 
-  open, 
-  onClose, 
-  item, 
+export default function ReservaModal({
+  open,
+  onClose,
+  item,
+  cartItems, // Nueva prop
   tipo,
-  onReservaCreada 
+  onReservaCreada
 }) {
   const navigate = useNavigate();
 
@@ -36,6 +37,7 @@ export default function ReservaModal({
   const [horarios, setHorarios] = useState([]);
   const [horarioSeleccionado, setHorarioSeleccionado] = useState('');
   const [direccion, setDireccion] = useState('');
+  const [metodoPago, setMetodoPago] = useState('transferencia');
 
   // ============ ESTADOS DE CONTROL ============
   const [loading, setLoading] = useState(false);
@@ -49,6 +51,7 @@ export default function ReservaModal({
       setFechaEvento(null);
       setHorarioSeleccionado('');
       setDireccion('');
+      setMetodoPago('transferencia');
       setHorarios([]);
       setError(null);
       setCargandoHorarios(false);
@@ -66,7 +69,7 @@ export default function ReservaModal({
     }
 
     setHorarioSeleccionado('');
-    
+
     const cargarHorarios = async () => {
       setCargandoHorarios(true);
       setError(null);
@@ -74,7 +77,7 @@ export default function ReservaModal({
         const { getHorariosDisponibles } = await import('../api/reservas');
         const fechaFormateada = fechaEvento.toISOString().split('T')[0];
         const res = await getHorariosDisponibles(fechaFormateada);
-        
+
         if (res.data && res.data.length > 0) {
           setHorarios(res.data);
         } else {
@@ -99,6 +102,7 @@ export default function ReservaModal({
     setFechaEvento(null);
     setHorarioSeleccionado('');
     setDireccion('');
+    setMetodoPago('transferencia');
     setHorarios([]);
     setError(null);
     setLoading(false);
@@ -148,50 +152,88 @@ export default function ReservaModal({
 
     try {
       const { createReserva } = await import('../api/reservas');
-      
+      const { checkoutPago } = await import('../api/reservas'); // Importar checkout explícitamente
+
       const fechaFormateada = fechaEvento.toISOString().split('T')[0];
 
+      // Construcción del Payload con 'detalles'
       const payload = {
         fecha_evento: fechaFormateada,
         direccion_evento: direccion,
         horario: parseInt(horarioSeleccionado),
         estado: 'PENDIENTE',
+        detalles: []
       };
 
-      // Agregar según el tipo
+      // Lógica de mapeo a Detalles (adaptada al Serializador)
       if (tipo === 'servicio' && item.id !== 'carrito') {
-        payload.servicio = item.id;
-        payload.total = item.precio_base || 0;
+        const precio = item.precio_base || 0;
+        payload.detalles.push({
+          tipo: 'S',
+          servicio: item.id,
+          cantidad: 1,
+          precio_unitario: precio,
+          subtotal: precio
+        });
+        payload.total = precio;
       } else if (tipo === 'combo') {
-        payload.combo = item.id;
-        payload.total = item.precio_combo || item.precio_total || 0;
+        const precio = item.precio_combo || item.precio_total || 0;
+        payload.detalles.push({
+          tipo: 'C',
+          combo: item.id,
+          cantidad: 1,
+          precio_unitario: precio,
+          subtotal: precio
+        });
+        payload.total = precio;
       } else if (tipo === 'promocion') {
-        payload.promocion = item.id;
-        payload.total = item.descuento_monto || 0;
+        const precio = item.descuento_monto || 0;
+        payload.detalles.push({
+          tipo: 'P',
+          promocion: item.id,
+          cantidad: 1,
+          precio_unitario: precio,
+          subtotal: precio
+        });
+        payload.total = precio;
       } else if (item.id === 'carrito') {
-        payload.total = item.precio_base || 0;
+        // Lógica para el carrito completo
+        if (cartItems && cartItems.length > 0) {
+          payload.detalles = cartItems.map(cartItem => ({
+            tipo: cartItem.servicio ? 'S' : (cartItem.combo ? 'C' : 'P'),
+            servicio: cartItem.servicio,
+            combo: cartItem.combo,
+            promocion: cartItem.promocion,
+            cantidad: cartItem.cantidad,
+            precio_unitario: cartItem.precio_unitario,
+            subtotal: cartItem.subtotal
+          }));
+          payload.total = item.precio_base || 0; // Total calculado en PaginaCarrito
+        } else {
+          throw new Error("El carrito está vacío o no se cargaron los items.");
+        }
       }
+
+      console.log("Enviando Reserva Payload:", payload); // Debug temporal
 
       const response = await createReserva(payload);
-      
-      // Resetear formulario
-      setFechaEvento(null);
-      setHorarioSeleccionado('');
-      setDireccion('');
-      setHorarios([]);
-      setError(null);
-      setLoading(false);
+      const reservaId = response.data?.reserva?.id;
 
-      // NOTIFICAR AL PADRE (él cierra el modal)
-      if (onReservaCreada) {
-        onReservaCreada();
+      if (!reservaId) {
+        throw new Error('Error al obtener el ID de la reserva creada');
       }
 
+      // 2. Llamar a checkoutPago
+      await checkoutPago(reservaId, { metodo_pago: metodoPago });
+
+      // Resetear y redirigir
+      setLoading(false);
+      navigate(`/confirmacion-pago/${reservaId}`);
+
     } catch (err) {
-      console.error('Error al crear reserva:', err);
-      setError(
-        err.response?.data?.error || 
-        err.message || 
+      console.error(err);
+      setError(err.response?.data?.error ||
+        err.message ||
         'Error al crear la reserva. Intenta nuevamente.'
       );
       setLoading(false);
@@ -292,81 +334,98 @@ export default function ReservaModal({
               </Typography>
             </Box>
 
-              {/* FECHA */}
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                <Box sx={{ mb: 2 }}>
-                  <DatePicker
-                    label="Fecha del Evento"
-                    value={fechaEvento}
-                    onChange={(newValue) => setFechaEvento(newValue)}
-                    minDate={new Date()}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        required: true,
-                        helperText: 'Selecciona la fecha del evento',
-                      },
-                    }}
-                  />
-                </Box>
-              </LocalizationProvider>
+            {/* FECHA */}
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+              <Box sx={{ mb: 2 }}>
+                <DatePicker
+                  label="Fecha del Evento"
+                  value={fechaEvento}
+                  onChange={(newValue) => setFechaEvento(newValue)}
+                  minDate={new Date()}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      required: true,
+                      helperText: 'Selecciona la fecha del evento',
+                    },
+                  }}
+                />
+              </Box>
+            </LocalizationProvider>
 
-              {/* HORARIO */}
-              {fechaEvento && (
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                  <InputLabel>Horario Disponible</InputLabel>
-                  <Select
-                    value={horarioSeleccionado}
-                    onChange={(e) => setHorarioSeleccionado(e.target.value)}
-                    label="Horario Disponible"
-                    disabled={cargandoHorarios || horarios.length === 0}
-                  >
-                    {cargandoHorarios ? (
-                      <MenuItem disabled>
-                        <CircularProgress size={20} sx={{ mr: 1 }} /> Cargando...
+            {/* HORARIO */}
+            {fechaEvento && (
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel>Horario Disponible</InputLabel>
+                <Select
+                  value={horarioSeleccionado}
+                  onChange={(e) => setHorarioSeleccionado(e.target.value)}
+                  label="Horario Disponible"
+                  disabled={cargandoHorarios || horarios.length === 0}
+                >
+                  {cargandoHorarios ? (
+                    <MenuItem disabled>
+                      <CircularProgress size={20} sx={{ mr: 1 }} /> Cargando...
+                    </MenuItem>
+                  ) : horarios.length === 0 ? (
+                    <MenuItem disabled>
+                      Sin horarios disponibles
+                    </MenuItem>
+                  ) : (
+                    horarios.map((h) => (
+                      <MenuItem key={h.id} value={h.id}>
+                        {h.hora_inicio} - {h.hora_fin}
                       </MenuItem>
-                    ) : horarios.length === 0 ? (
-                      <MenuItem disabled>
-                        Sin horarios disponibles
-                      </MenuItem>
-                    ) : (
-                      horarios.map((h) => (
-                        <MenuItem key={h.id} value={h.id}>
-                          {h.hora_inicio} - {h.hora_fin}
-                        </MenuItem>
-                      ))
-                    )}
-                  </Select>
-                </FormControl>
-              )}
+                    ))
+                  )}
+                </Select>
+              </FormControl>
+            )}
 
-              {/* DIRECCIÓN */}
-              <TextField
-                fullWidth
-                label="Dirección del Evento"
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
+            {/* DIRECCIÓN */}
+            <TextField
+              fullWidth
+              label="Dirección del Evento"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              required
+              multiline
+              rows={2}
+              placeholder="Calle, número, colonia, ciudad"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LocationOnIcon sx={{ color: '#FF6B9D' }} />
+                  </InputAdornment>
+                ),
+              }}
+              disabled={loading}
+              sx={{ mb: 2 }}
+            />
+
+            {/* MODO DE PAGO */}
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>¿Cómo desea pagar?</InputLabel>
+              <Select
+                value={metodoPago}
+                onChange={(e) => setMetodoPago(e.target.value)}
+                label="¿Cómo desea pagar?"
                 required
-                multiline
-                rows={2}
-                placeholder="Calle, número, colonia, ciudad"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LocationOnIcon sx={{ color: '#FF6B9D' }} />
-                    </InputAdornment>
-                  ),
-                }}
-                disabled={loading}
-                sx={{ mb: 2 }}
-              />
+              >
+                <MenuItem value="transferencia">Transferencia Bancaria (Pichincha/Guayaquil)</MenuItem>
+                <MenuItem value="efectivo">Efectivo (Pago al llegar)</MenuItem>
+              </Select>
+              <Typography variant="caption" sx={{ mt: 1, color: '#666', px: 1 }}>
+                * Al elegir transferencia, se le mostrarán los datos bancarios en el siguiente paso.
+              </Typography>
+            </FormControl>
 
-              {/* ERROR */}
-              {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {error}
-                </Alert>
-              )}
+            {/* ERROR */}
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
           </Box>
         </Box>
 
@@ -384,41 +443,41 @@ export default function ReservaModal({
             disabled={loading}
             sx={{
               flex: 1,
-                color: '#666',
-                textTransform: 'none',
-                fontSize: '16px',
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              form="reserva-form"
-              variant="contained"
-              disabled={loading}
-              sx={{
-                flex: 1,
-                background: 'linear-gradient(135deg, #FF6B9D 0%, #FF8C94 100%)',
-                color: '#fff',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                fontSize: '16px',
-                borderRadius: '25px',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #FF8C94 0%, #FF6B9D 100%)',
-                },
-              }}
-            >
-              {loading ? (
-                <>
-                  <CircularProgress size={18} sx={{ color: '#fff', mr: 1 }} />
-                  Reservando...
-                </>
-              ) : (
-                'Confirmar Reserva'
-              )}
-            </Button>
-          </Box>
+              color: '#666',
+              textTransform: 'none',
+              fontSize: '16px',
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="reserva-form"
+            variant="contained"
+            disabled={loading}
+            sx={{
+              flex: 1,
+              background: 'linear-gradient(135deg, #FF6B9D 0%, #FF8C94 100%)',
+              color: '#fff',
+              fontWeight: 'bold',
+              textTransform: 'none',
+              fontSize: '16px',
+              borderRadius: '25px',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #FF8C94 0%, #FF6B9D 100%)',
+              },
+            }}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={18} sx={{ color: '#fff', mr: 1 }} />
+                Reservando...
+              </>
+            ) : (
+              'Confirmar Reserva'
+            )}
+          </Button>
+        </Box>
       </Box>
     </>
   );

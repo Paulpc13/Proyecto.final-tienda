@@ -49,6 +49,9 @@ function LoginPage() {
           <button style={styles.button} type="submit">
             ENTRAR
           </button>
+          <a style={styles.forgotLink} href="/forgot-password">
+            ¿Olvidaste tu contraseña?
+          </a>
           {error && <p style={styles.error}>{error}</p>}
         </form>
         <a style={styles.link} href="/register">
@@ -141,6 +144,16 @@ const styles = {
     textDecoration: 'none',
     fontWeight: 600,
     fontSize: '1rem',
+  },
+  forgotLink: {
+    display: 'block',
+    textAlign: 'center',
+    marginTop: 16,
+    color: '#666',
+    textDecoration: 'none',
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    transition: 'color 0.2s ease',
   },
 };
 

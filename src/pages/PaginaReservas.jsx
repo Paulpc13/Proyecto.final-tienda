@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getReservas, deleteReserva } from '../api';
 import {
@@ -13,7 +13,14 @@ import {
   List,
   ListItem,
   Divider,
+  Grid,
+  Card,
+  CardContent,
+  Avatar,
 } from '@mui/material';
+import CelebrationIcon from '@mui/icons-material/Celebration';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import { ThemeProvider } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { theme } from '../theme/theme';
@@ -75,22 +82,72 @@ function PaginaReservas() {
 
   const formatFechaEvento = (fecha) => {
     if (!fecha) return '—';
-    const d = new Date(fecha);
-    if (isNaN(d.getTime())) {
-      // Fallback: intentar formato YYYY-MM-DD
-      try {
-        const fallback = new Date(`${fecha}T00:00:00`);
-        return isNaN(fallback.getTime()) ? String(fecha) : fallback.toLocaleDateString();
-      } catch {
-        return String(fecha);
-      }
-    }
-    try {
+    // Forzamos el parseo como fecha local (YYYY, MM-1, DD) para evitar desfases de zona horaria
+    const parts = String(fecha).split('-');
+    if (parts.length === 3) {
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
       return d.toLocaleDateString();
-    } catch {
-      return String(fecha);
     }
+    // Fallback si el formato no es YYYY-MM-DD
+    const d = new Date(fecha);
+    return isNaN(d.getTime()) ? String(fecha) : d.toLocaleDateString();
   };
+  
+  const getStats = () => {
+    const totalCount = reservas.length;
+    
+    // Desglose por estados
+    const aprobadas = reservas.filter(r => r.estado === 'APROBADA').length;
+    const pendientes = reservas.filter(r => r.estado === 'PENDIENTE' || r.estado === 'REVISION').length;
+    const anuladas = reservas.filter(r => r.estado === 'ANULADA').length;
+
+    // Saldo Pendiente: Reservas no PAGADAS y no ANULADAS
+    const pendientesDePago = reservas.filter(r => r.estado !== 'APROBADA' && r.estado !== 'ANULADA');
+    const saldoPendiente = pendientesDePago.reduce((acc, r) => acc + parseFloat(r.total || 0), 0);
+    const numPendientesPago = pendientesDePago.length;
+    
+    // Próxima Fiesta: Fecha más cercana (excluyendo ANULADA)
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    const proximas = reservas
+      .filter(r => {
+        if (r.estado === 'ANULADA') return false;
+        const parts = r.fecha_evento.split('-');
+        const dateObj = parts.length === 3 
+          ? new Date(parts[0], parts[1] - 1, parts[2])
+          : new Date(r.fecha_evento);
+        return dateObj >= hoy;
+      })
+      .sort((a, b) => {
+        const dA = a.fecha_evento.split('-');
+        const dB = b.fecha_evento.split('-');
+        return new Date(dA[0], dA[1]-1, dA[2]) - new Date(dB[0], dB[1]-1, dB[2]);
+      });
+    
+    let proximaFiesta = { fecha: 'Sin eventos próximos', nombre: '' };
+    if (proximas.length > 0) {
+      // Parseo local de la próxima fiesta
+      const parts = proximas[0].fecha_evento.split('-');
+      const d = parts.length === 3 
+        ? new Date(parts[0], parts[1] - 1, parts[2])
+        : new Date(proximas[0].fecha_evento);
+
+      const opciones = { day: 'numeric', month: 'short' };
+      proximaFiesta = {
+        fecha: d.toLocaleDateString('es-ES', opciones),
+        nombre: proximas[0].direccion_evento || 'Ubicación por definir'
+      };
+    }
+
+    return { 
+      totalCount, aprobadas, pendientes, anuladas, 
+      saldoPendiente, numPendientesPago,
+      proximaFiesta 
+    };
+  };
+
+  const stats = getStats();
 
   return (
     <ThemeProvider theme={theme}>
@@ -103,11 +160,78 @@ function PaginaReservas() {
           <Typography variant="h4" sx={{
             color: '#FF6B9D',
             fontWeight: 'bold',
-            mb: 3,
+            mb: 4,
             textAlign: 'center'
           }}>
             📅 Mis Reservas
           </Typography>
+
+          {/* TARJETAS DE ESTADÍSTICAS INTELIGENTES */}
+          {reservas.length > 0 && (
+            <Grid container spacing={3} sx={{ mb: 6, justifyContent: 'center' }}>
+              {/* Tarjeta 1: Total */}
+              <Grid item xs={12} sm={4}>
+                <Card sx={{ borderRadius: '25px', border: '1px solid #FFE3ED', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3 }}>
+                    <Avatar sx={{ bgcolor: 'rgba(255, 107, 157, 0.1)', color: '#FF6B9D', mb: 1, width: 45, height: 45 }}>
+                      <CelebrationIcon size="small" />
+                    </Avatar>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: '#333' }}>{stats.totalCount}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#666', mb: 1.5 }}>Total Reservas</Typography>
+                    
+                    <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#4CAF50' }} />
+                        <Typography sx={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>{stats.aprobadas}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#FFB800' }} />
+                        <Typography sx={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>{stats.pendientes}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#FF6348' }} />
+                        <Typography sx={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>{stats.anuladas}</Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Tarjeta 2: Saldo */}
+              <Grid item xs={12} sm={4}>
+                <Card sx={{ borderRadius: '25px', border: '1px solid #FFE3ED', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3 }}>
+                    <Avatar sx={{ bgcolor: 'rgba(255, 184, 0, 0.1)', color: '#FFB800', mb: 1, width: 45, height: 45 }}>
+                      <AccountBalanceWalletIcon size="small" />
+                    </Avatar>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: '#333' }}>${stats.saldoPendiente.toFixed(2)}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#666' }}>Saldo Pendiente</Typography>
+                    <Typography sx={{ fontSize: '0.8rem', color: '#888', mt: 1, fontWeight: 500 }}>
+                      En {stats.numPendientesPago} reservas por pagar
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Tarjeta 3: Próxima Fiesta */}
+              <Grid item xs={12} sm={4}>
+                <Card sx={{ borderRadius: '25px', border: '1px solid #FFE3ED', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3 }}>
+                    <Avatar sx={{ bgcolor: 'rgba(76, 175, 80, 0.1)', color: '#4CAF50', mb: 1, width: 45, height: 45 }}>
+                      <EventAvailableIcon size="small" />
+                    </Avatar>
+                    <Typography variant="h4" sx={{ fontWeight: 900, color: '#333', textAlign: 'center' }}>
+                      {stats.proximaFiesta.fecha}
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#666' }}>Tu Próxima Fiesta</Typography>
+                    <Typography sx={{ fontSize: '0.8rem', color: '#888', mt: 1, fontWeight: 500, textAlign: 'center' }}>
+                      {stats.proximaFiesta.nombre}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          )}
 
           {!loading && !error && reservas.length === 0 && (
             <>

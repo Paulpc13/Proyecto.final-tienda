@@ -12,6 +12,8 @@ import PaginaPagos from './pages/PaginaPagos';
 import PaginaCancelaciones from './pages/PaginaCancelaciones';
 import PaginaCarrito from './pages/PaginaCarrito';
 import PaginaConfirmacion from './pages/PaginaConfirmacion';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 import QuienesSomos from "./pages/QuienesSomos";
 import Terminos from "./pages/Terminos";
@@ -20,6 +22,7 @@ import SolicitarServicio from "./pages/SolicitarServicio";
 import ArmaTuFiesta from "./pages/ArmaTuFiesta";
 import Ofertas from "./pages/Ofertas";
 import Proveedor from "./pages/Proveedor";
+import CalendarioReservas from "./pages/CalendarioReservas";
 
 
 import './App.css';
@@ -36,6 +39,8 @@ function App() {
 					{/* Rutas de autenticación - PÚBLICAS */}
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/register" element={<RegisterPage />} />
+					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
+					<Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
 					{/* Rutas protegidas - requieren autenticación */}
 					<Route path="/carrito" element={<ProtectedRoute><PaginaCarrito /></ProtectedRoute>} />
@@ -55,6 +60,7 @@ function App() {
                     <Route path="/arma-tu-fiesta" element={<ArmaTuFiesta />} />
                     <Route path="/ofertas" element={<Ofertas />} />
                     <Route path="/proveedor" element={<Proveedor />} />
+                    <Route path="/calendario" element={<CalendarioReservas />} />
 				</Routes>
 			</AuthProvider>
 		</ErrorBoundary>

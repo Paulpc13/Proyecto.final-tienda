@@ -20,6 +20,7 @@ import { ThemeProvider, alpha } from '@mui/material/styles';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -51,6 +52,8 @@ function PaginaConfirmacion() {
     const [mensaje, setMensaje] = useState(null);
     const [infoCopiado, setInfoCopiado] = useState(false);
     const [error, setError] = useState(null);
+    const [preview, setPreview] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     useEffect(() => {
         fetchReservaYBancos();
@@ -80,7 +83,7 @@ function PaginaConfirmacion() {
         setInfoCopiado(true);
     };
 
-    const handleFileUpload = async (event) => {
+    const handleFileSelect = (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
@@ -90,9 +93,17 @@ function PaginaConfirmacion() {
             return;
         }
 
+        setSelectedFile(file);
+        setPreview(URL.createObjectURL(file));
+        setError(null);
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) return;
+
         const formData = new FormData();
         formData.append('metodo_pago', 'transferencia');
-        formData.append('comprobante_pago', file);
+        formData.append('comprobante_pago', selectedFile);
 
         try {
             setUploading(true);
@@ -101,12 +112,13 @@ function PaginaConfirmacion() {
             const response = await checkoutPago(id, formData);
             setMensaje('¡Comprobante subido con éxito! Validaremos su pago pronto.');
             setReserva({ ...reserva, estado: response.data.estado });
+            setPreview(null);
+            setSelectedFile(null);
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.error || 'Error al subir el comprobante.');
         } finally {
             setUploading(false);
-            event.target.value = null;
         }
     };
 
@@ -370,34 +382,122 @@ function PaginaConfirmacion() {
                                                 border: '2px solid #FFF',
                                                 boxShadow: 'inset 0 0 20px rgba(0,0,0,0.02)'
                                             }}>
-                                                <Typography variant="h6" sx={{ mb: 3, color: '#333', fontWeight: 800 }}>
+                                                <Typography variant="h6" sx={{ 
+                                                    mb: 3, 
+                                                    color: '#333', 
+                                                    fontWeight: 800,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: 1.5
+                                                }}>
                                                     📸 ¿Ya pagaste? Sube tu captura
                                                 </Typography>
-                                                <Button
-                                                    component="label"
-                                                    variant="contained"
-                                                    startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
-                                                    disabled={uploading}
-                                                    sx={{
-                                                        background: 'linear-gradient(45deg, #FF6B9D 30%, #FFD54F 90%)',
-                                                        color: '#fff',
-                                                        borderRadius: '50px',
-                                                        px: 6,
-                                                        py: 2,
-                                                        fontSize: '1.1rem',
-                                                        textTransform: 'none',
-                                                        fontWeight: 900,
-                                                        boxShadow: '0 10px 25px rgba(255, 107, 157, 0.4)',
-                                                        '&:hover': {
-                                                            background: 'linear-gradient(45deg, #FF8C94 30%, #FFB800 90%)',
-                                                            transform: 'scale(1.02)'
-                                                        },
-                                                        transition: 'all 0.2s'
-                                                    }}
-                                                >
-                                                    {uploading ? 'Subiendo...' : 'SUBIR COMPROBANTE'}
-                                                    <input type="file" hidden accept="image/*" onChange={handleFileUpload} />
-                                                </Button>
+
+                                                {preview && (
+                                                    <Box sx={{ 
+                                                        mb: 4, 
+                                                        position: 'relative', 
+                                                        display: 'flex', 
+                                                        justifyContent: 'center', 
+                                                        alignItems: 'center',
+                                                        bgcolor: '#f8f9fa',
+                                                        p: 3,
+                                                        borderRadius: '30px',
+                                                        border: '2px dashed #FFE3ED',
+                                                        maxWidth: '350px',
+                                                        mx: 'auto',
+                                                        boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.02)'
+                                                    }}>
+                                                        <img 
+                                                            src={preview} 
+                                                            alt="Vista previa" 
+                                                            style={{ 
+                                                                maxWidth: '100%', 
+                                                                maxHeight: '220px',
+                                                                borderRadius: '15px', 
+                                                                boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
+                                                                objectFit: 'contain'
+                                                            }} 
+                                                        />
+                                                        <IconButton 
+                                                            onClick={(e) => { 
+                                                                e.preventDefault();
+                                                                setPreview(null); 
+                                                                setSelectedFile(null); 
+                                                            }}
+                                                            sx={{ 
+                                                                position: 'absolute', 
+                                                                top: -15, 
+                                                                right: -15, 
+                                                                bgcolor: '#FF4757', 
+                                                                color: 'white',
+                                                                width: 35,
+                                                                height: 35,
+                                                                boxShadow: '0 5px 15px rgba(255, 71, 87, 0.4)',
+                                                                '&:hover': { bgcolor: '#FF6B81', transform: 'scale(1.15) rotate(90deg)' },
+                                                                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                                                            }}
+                                                            size="small"
+                                                        >
+                                                            <DeleteIcon sx={{ fontSize: '1.2rem' }} />
+                                                        </IconButton>
+                                                    </Box>
+                                                )}
+
+                                                {!preview ? (
+                                                    <Button
+                                                        component="label"
+                                                        variant="contained"
+                                                        startIcon={<CloudUploadIcon />}
+                                                        sx={{
+                                                            background: 'linear-gradient(45deg, #FF6B9D 30%, #FFD54F 90%)',
+                                                            color: '#fff',
+                                                            borderRadius: '50px',
+                                                            px: 6,
+                                                            py: 2.2,
+                                                            fontSize: '1.1rem',
+                                                            textTransform: 'none',
+                                                            fontWeight: 900,
+                                                            boxShadow: '0 12px 25px rgba(255, 107, 157, 0.35)',
+                                                            '&:hover': {
+                                                                background: 'linear-gradient(45deg, #FF8C94 30%, #FFB800 90%)',
+                                                                transform: 'translateY(-3px)',
+                                                                boxShadow: '0 15px 30px rgba(255, 107, 157, 0.45)'
+                                                            },
+                                                            transition: 'all 0.3s'
+                                                        }}
+                                                    >
+                                                        SELECCIONAR COMPROBANTE
+                                                        <input type="file" hidden accept="image/*" onChange={handleFileSelect} />
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        variant="contained"
+                                                        onClick={handleUpload}
+                                                        disabled={uploading}
+                                                        startIcon={uploading ? <CircularProgress size={24} color="inherit" /> : <CloudUploadIcon />}
+                                                        sx={{
+                                                            background: 'linear-gradient(45deg, #4CAF50 30%, #8BC34A 90%)',
+                                                            color: '#fff',
+                                                            borderRadius: '50px',
+                                                            px: 6,
+                                                            py: 2.2,
+                                                            fontSize: '1.1rem',
+                                                            textTransform: 'none',
+                                                            fontWeight: 900,
+                                                            boxShadow: '0 12px 25px rgba(76, 175, 80, 0.35)',
+                                                            '&:hover': {
+                                                                background: 'linear-gradient(45deg, #66BB6A 30%, #9CCC65 90%)',
+                                                                transform: 'translateY(-3px)',
+                                                                boxShadow: '0 15px 30px rgba(76, 175, 80, 0.45)'
+                                                            },
+                                                            transition: 'all 0.3s'
+                                                        }}
+                                                    >
+                                                        {uploading ? 'ENVIANDO...' : 'CONFIRMAR Y ENVIAR'}
+                                                    </Button>
+                                                )}
                                             </Box>
                                         </Box>
                                     ) : (

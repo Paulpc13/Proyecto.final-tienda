@@ -386,6 +386,15 @@ export default function PaginaInicio() {
     </Box>
   </Box>
 </Box>
+        {/* Modal de Reserva */}
+        <ReservaModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          item={selectedItem}
+          tipo={selectedTipo}
+          onReservaCreada={handleReservaCreada}
+        />
+
      {/* Snackbar para notificaciones */}
         <Snackbar
           open={snackbarOpen}

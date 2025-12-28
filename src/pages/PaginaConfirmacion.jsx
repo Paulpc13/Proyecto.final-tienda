@@ -137,126 +137,107 @@ function PaginaConfirmacion() {
     return (
         <ThemeProvider theme={theme}>
             <PageContainer>
-                <Container maxWidth="lg" sx={{ py: 6 }}>
-                    {/* Cabecera Premium */}
-                    <Box sx={{ textAlign: 'center', mb: 6 }}>
-                        {/* Icono reducido para mantener proporción con el nuevo título */}
-                        <CheckCircleOutlineIcon sx={{ fontSize: 60, color: '#4CAF50', filter: 'drop-shadow(0 4px 10px rgba(76, 175, 80, 0.3))', mb: 2 }} />
-                        {/* Título ajustado a h4 (más pequeño) */}
-                        <Typography variant="h4" sx={{ fontWeight: 900, color: '#FF6B9D', mb: 1, letterSpacing: '-1px' }}>
+                <Container maxWidth="lg" sx={{ py: 2 }}>
+                    {/* Cabecera Compacta */}
+                    <Box sx={{ textAlign: 'center', mb: 2 }}>
+                        <CheckCircleOutlineIcon sx={{ fontSize: 40, color: '#4CAF50', mb: 0.5 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 900, color: '#FF6B9D', mb: 0, letterSpacing: '-0.5px' }}>
                             ¡Casi Listos!
                         </Typography>
-                        <Typography variant="h6" sx={{ color: '#666', fontWeight: 500 }}>
-                            Reserva: <span style={{ color: '#FFB800', fontWeight: 800 }}>#{reserva.codigo_reserva}</span>
+                        <Typography variant="caption" sx={{ color: '#666', fontWeight: 600, display: 'block' }}>
+                            Reserva: <span style={{ color: '#FFB800' }}>#{reserva.codigo_reserva}</span>
                         </Typography>
                     </Box>
 
-                    {mensaje && <Alert severity="success" sx={{ mb: 4, borderRadius: '20px', fontWeight: 'bold' }}>{mensaje}</Alert>}
-                    {error && <Alert severity="error" sx={{ mb: 4, borderRadius: '20px', fontWeight: 'bold' }}>{error}</Alert>}
+                    {mensaje && <Alert severity="success" sx={{ mb: 2, py: 0, borderRadius: '12px', fontWeight: 'bold', fontSize: '0.8rem' }}>{mensaje}</Alert>}
+                    {error && <Alert severity="error" sx={{ mb: 2, py: 0, borderRadius: '12px', fontWeight: 'bold', fontSize: '0.8rem' }}>{error}</Alert>}
 
-                    <Grid container spacing={5} justifyContent={reserva.estado === 'APROBADA' ? 'center' : 'flex-start'}>
+                    <Grid container spacing={2} justifyContent={reserva.estado === 'APROBADA' ? 'center' : 'flex-start'}>
                         {/* COLUMNA IZQUIERDA: Resumen del Pedido */}
-                        <Grid item xs={12} md={reserva.estado === 'APROBADA' ? 8 : 6}>
+                        <Grid item xs={12} md={reserva.estado === 'APROBADA' ? 8 : 5}>
                             <Card sx={{
                                 borderRadius: '24px',
                                 border: '1px solid #FFE3ED',
-                                boxShadow: '0 20px 40px rgba(255, 107, 157, 0.08)',
-                                overflow: 'visible',
+                                boxShadow: '0 10px 30px rgba(255, 107, 157, 0.05)',
                                 position: 'relative'
                             }}>
-                                <CardContent sx={{ p: 4 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                                        <Typography variant="h5" sx={{ fontWeight: 800, color: '#333', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                            <ReceiptLongIcon sx={{ color: '#FF6B9D' }} /> Detalles del Evento
+                                <CardContent sx={{ p: 2 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#333', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <ReceiptLongIcon sx={{ color: '#FF6B9D', fontSize: 18 }} /> Detalles
                                         </Typography>
                                         <Box sx={{
-                                            px: 2.5, py: 0.8,
+                                            px: 1, py: 0.2,
                                             borderRadius: '50px',
                                             bgcolor: reserva.estado === 'APROBADA' ? '#E8F5E9' : '#FFF4CC',
                                             color: reserva.estado === 'APROBADA' ? '#2E7D32' : '#B28900',
                                             fontWeight: '900',
-                                            fontSize: '0.8rem',
-                                            boxShadow: reserva.estado === 'APROBADA' ? 'none' : '0 4px 12px rgba(255, 199, 79, 0.2)',
+                                            fontSize: '0.65rem',
                                             border: `1px solid ${reserva.estado === 'APROBADA' ? '#C8E6C9' : '#FFD54F'}`,
                                             textTransform: 'uppercase'
                                         }}>
-                                            {reserva.estado === 'APROBADA' ? '✓ Confirmado' : `⏳ ${reserva.estado}`}
+                                            {reserva.estado === 'APROBADA' ? '✓ Confirmado' : reserva.estado}
                                         </Box>
                                     </Box>
 
-                                    {/* Información del evento */}
-                                    <Grid container spacing={3} sx={{ mb: 4 }}>
-                                        <Grid item xs={12}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <Avatar sx={{ bgcolor: alpha('#FFB800', 0.1), color: '#FFB800', width: 45, height: 45 }}>
-                                                    <StarsIcon />
-                                                </Avatar>
-                                                <Box>
-                                                    <Typography variant="caption" sx={{ color: '#999', fontWeight: 700, textTransform: 'uppercase' }}>Nombre del Evento</Typography>
-                                                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#333', textTransform: 'capitalize' }}>
-                                                        {reserva.nombre_evento}
-                                                    </Typography>
+                                    {/* Información del evento compacta */}
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <StarsIcon sx={{ color: '#FFB800', fontSize: 16 }} />
+                                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#333', textTransform: 'capitalize' }}>
+                                                {reserva.nombre_evento}
+                                            </Typography>
+                                        </Box>
+                                        <Grid container rowSpacing={0.5} columnSpacing={2}>
+                                            <Grid item xs={12} sm={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <EventIcon sx={{ color: '#FF6B9D', fontSize: 14 }} />
+                                                    <Typography variant="caption" sx={{ fontWeight: 600, color: '#666' }}>{reserva.fecha_evento}</Typography>
                                                 </Box>
-                                            </Box>
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <Avatar sx={{ bgcolor: alpha('#FF6B9D', 0.1), color: '#FF6B9D', width: 45, height: 45 }}>
-                                                    <EventIcon />
-                                                </Avatar>
-                                                <Box>
-                                                    <Typography variant="caption" sx={{ color: '#999', fontWeight: 700, textTransform: 'uppercase' }}>Fecha</Typography>
-                                                    <Typography variant="body1" sx={{ fontWeight: 800, color: '#444' }}>{reserva.fecha_evento}</Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <LocationOnIcon sx={{ color: '#FF6B9D', fontSize: 14 }} />
+                                                    <Typography variant="caption" sx={{ fontWeight: 600, color: '#666' }}>{reserva.direccion_evento}</Typography>
                                                 </Box>
-                                            </Box>
+                                            </Grid>
                                         </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <Avatar sx={{ bgcolor: alpha('#FF6B9D', 0.1), color: '#FF6B9D', width: 45, height: 45 }}>
-                                                    <LocationOnIcon />
-                                                </Avatar>
-                                                <Box>
-                                                    <Typography variant="caption" sx={{ color: '#999', fontWeight: 700, textTransform: 'uppercase' }}>Dirección</Typography>
-                                                    <Typography variant="body1" sx={{ fontWeight: 600, color: '#444', lineHeight: 1.2 }}>{reserva.direccion_evento}</Typography>
-                                                </Box>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
+                                    </Box>
 
                                     {/* Detalle del pedido */}
-                                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                        <ShoppingBagIcon sx={{ color: '#FFB800' }} /> Tu Pedido
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <ShoppingBagIcon sx={{ color: '#FFB800', fontSize: 18 }} /> Tu Pedido
                                     </Typography>
 
-                                    <Box sx={{ pl: 1, mb: 3 }}>
+                                    <Box sx={{ pl: 0.5, mb: 2 }}>
                                         {reserva.detalles?.map((item, index) => (
-                                            <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                                                <Typography variant="body1" sx={{ color: '#555', fontWeight: 500 }}>
-                                                    {item.nombre_item} <span style={{ color: '#FF6B9D', fontWeight: 800, fontSize: '0.8rem' }}>x{item.cantidad}</span>
+                                            <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                <Typography variant="caption" sx={{ color: '#555', fontWeight: 500 }}>
+                                                    {item.nombre_item} <span style={{ color: '#FF6B9D', fontWeight: 800, fontSize: '0.7rem' }}>x{item.cantidad}</span>
                                                 </Typography>
-                                                <Typography variant="body1" sx={{ fontWeight: 800, color: '#333' }}>
+                                                <Typography variant="caption" sx={{ fontWeight: 800, color: '#333' }}>
                                                     ${parseFloat(item.subtotal).toFixed(2)}
                                                 </Typography>
                                             </Box>
                                         ))}
                                     </Box>
 
-                                    {/* Resumen de precios */}
-                                    <Box sx={{ mt: 3, p: 3, bgcolor: '#FFF9FB', borderRadius: '20px', border: '2px dashed #FFE3ED' }}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                                            <Typography variant="body1" sx={{ color: '#666', fontWeight: 600 }}>Subtotal</Typography>
-                                            <Typography variant="body1" sx={{ fontWeight: 700 }}>${parseFloat(reserva.subtotal).toFixed(2)}</Typography>
+                                    {/* Resumen de precios compacto */}
+                                    <Box sx={{ p: 1.5, bgcolor: '#FFF9FB', borderRadius: '12px', border: '1px dashed #FFE3ED' }}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.2 }}>
+                                            <Typography variant="caption" sx={{ color: '#666', fontWeight: 600, fontSize: '0.65rem' }}>Subtotal</Typography>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.65rem' }}>${parseFloat(reserva.subtotal).toFixed(2)}</Typography>
                                         </Box>
                                         {parseFloat(reserva.impuestos) > 0 && (
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                                                <Typography variant="body1" sx={{ color: '#666', fontWeight: 600 }}>Impuestos (IVA)</Typography>
-                                                <Typography variant="body1" sx={{ fontWeight: 700 }}>${parseFloat(reserva.impuestos).toFixed(2)}</Typography>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.2 }}>
+                                                <Typography variant="caption" sx={{ color: '#666', fontWeight: 600, fontSize: '0.65rem' }}>IVA</Typography>
+                                                <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.65rem' }}>${parseFloat(reserva.impuestos).toFixed(2)}</Typography>
                                             </Box>
                                         )}
-                                        <Divider sx={{ my: 2, opacity: 0.5 }} />
+                                        <Divider sx={{ my: 0.5, opacity: 0.3 }} />
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <Typography variant="h5" sx={{ fontWeight: 900, color: '#FF6B9D' }}>Total</Typography>
-                                            <Typography variant="h4" sx={{ fontWeight: 900, color: '#FF6B9D' }}>
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FF6B9D' }}>Total</Typography>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#FF6B9D' }}>
                                                 ${parseFloat(reserva.total).toFixed(2)}
                                             </Typography>
                                         </Box>
@@ -285,9 +266,9 @@ function PaginaConfirmacion() {
 
                         {/* COLUMNA DERECHA: Instrucciones de Pago */}
                         {reserva.estado !== 'APROBADA' && (
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={7}>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontWeight: 900, mb: 4, color: '#333', textAlign: { xs: 'center', md: 'left' } }}>
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 900, mb: 1.5, color: '#333' }}>
                                         💳 Paso Final: Pago
                                     </Typography>
 
@@ -308,44 +289,44 @@ function PaginaConfirmacion() {
                                                                 borderColor: '#FF6B9D'
                                                             }
                                                         }}>
-                                                            <CardContent sx={{ p: 2.5 }}>
-                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+                                                            <CardContent sx={{ p: 2 }}>
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                                                     <Avatar
                                                                         src={getBankLogo(banco.banco_nombre)}
                                                                         sx={{
-                                                                            width: 44,
-                                                                            height: 44,
+                                                                            width: 28,
+                                                                            height: 28,
                                                                             bgcolor: '#fff',
-                                                                            border: '1.5px solid #f0f0f0',
-                                                                            p: 1
+                                                                            border: '1px solid #f0f0f0',
+                                                                            p: 0.3
                                                                         }}
                                                                     >
-                                                                        <AccountBalanceIcon color="action" fontSize="small" />
+                                                                        <AccountBalanceIcon color="action" sx={{ fontSize: 14 }} />
                                                                     </Avatar>
                                                                     <Box>
-                                                                        <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#333', mb: -0.5, fontSize: '0.95rem', textTransform: 'capitalize' }}>
+                                                                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#333', lineHeight: 1.2 }}>
                                                                             {banco.banco_nombre}
                                                                         </Typography>
-                                                                        <Typography variant="caption" sx={{ color: '#888', fontWeight: 600 }}>
+                                                                        <Typography variant="caption" sx={{ color: '#888', fontSize: '0.65rem' }}>
                                                                             {banco.ruc}
                                                                         </Typography>
                                                                     </Box>
                                                                 </Box>
 
                                                                 <Box sx={{
-                                                                    p: 1.5,
+                                                                    p: 1,
                                                                     bgcolor: '#fcfcfc',
-                                                                    borderRadius: '16px',
+                                                                    borderRadius: '12px',
                                                                     border: '1px solid #eee',
                                                                     display: 'flex',
                                                                     justifyContent: 'space-between',
                                                                     alignItems: 'center'
                                                                 }}>
                                                                     <Box>
-                                                                        <Typography variant="caption" sx={{ color: '#999', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                                                                        <Typography variant="caption" sx={{ color: '#999', fontWeight: 700, fontSize: '0.55rem' }}>
                                                                             {banco.tipo_cuenta}
                                                                         </Typography>
-                                                                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#FF6B9D', letterSpacing: '0.5px', fontSize: '1.1rem' }}>
+                                                                        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FF6B9D' }}>
                                                                             {banco.numero_cuenta}
                                                                         </Typography>
                                                                     </Box>
@@ -374,49 +355,46 @@ function PaginaConfirmacion() {
                                             </Grid>
 
                                             <Box sx={{
-                                                mt: 6,
-                                                p: 4,
+                                                mt: 2,
+                                                p: 2,
                                                 textAlign: 'center',
                                                 background: 'linear-gradient(135deg, #FFF9FB 0%, #FFF4CC 100%)',
-                                                borderRadius: '30px',
-                                                border: '2px solid #FFF',
-                                                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.02)'
+                                                borderRadius: '20px',
+                                                border: '1px solid #FFE3ED'
                                             }}>
-                                                <Typography variant="h6" sx={{ 
-                                                    mb: 3, 
+                                                <Typography variant="body2" sx={{ 
+                                                    mb: 1.5, 
                                                     color: '#333', 
                                                     fontWeight: 800,
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    gap: 1.5
+                                                    gap: 1
                                                 }}>
                                                     📸 ¿Ya pagaste? Sube tu captura
                                                 </Typography>
 
                                                 {preview && (
                                                     <Box sx={{ 
-                                                        mb: 4, 
+                                                        mb: 2, 
                                                         position: 'relative', 
                                                         display: 'flex', 
                                                         justifyContent: 'center', 
                                                         alignItems: 'center',
-                                                        bgcolor: '#f8f9fa',
-                                                        p: 3,
-                                                        borderRadius: '30px',
-                                                        border: '2px dashed #FFE3ED',
-                                                        maxWidth: '350px',
-                                                        mx: 'auto',
-                                                        boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.02)'
+                                                        bgcolor: '#fff',
+                                                        p: 1.5,
+                                                        borderRadius: '20px',
+                                                        border: '1px dashed #FFE3ED',
+                                                        maxWidth: '250px',
+                                                        mx: 'auto'
                                                     }}>
                                                         <img 
                                                             src={preview} 
                                                             alt="Vista previa" 
                                                             style={{ 
                                                                 maxWidth: '100%', 
-                                                                maxHeight: '220px',
-                                                                borderRadius: '15px', 
-                                                                boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
+                                                                maxHeight: '150px',
+                                                                borderRadius: '12px', 
                                                                 objectFit: 'contain'
                                                             }} 
                                                         />
@@ -428,23 +406,20 @@ function PaginaConfirmacion() {
                                                             }}
                                                             sx={{ 
                                                                 position: 'absolute', 
-                                                                top: -15, 
-                                                                right: -15, 
+                                                                top: -10, 
+                                                                right: -10, 
                                                                 bgcolor: '#FF4757', 
                                                                 color: 'white',
-                                                                width: 35,
-                                                                height: 35,
-                                                                boxShadow: '0 5px 15px rgba(255, 71, 87, 0.4)',
-                                                                '&:hover': { bgcolor: '#FF6B81', transform: 'scale(1.15) rotate(90deg)' },
-                                                                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                                                                width: 28,
+                                                                height: 28,
+                                                                '&:hover': { bgcolor: '#FF6B81' }
                                                             }}
                                                             size="small"
                                                         >
-                                                            <DeleteIcon sx={{ fontSize: '1.2rem' }} />
+                                                            <DeleteIcon sx={{ fontSize: '1rem' }} />
                                                         </IconButton>
                                                     </Box>
                                                 )}
-
                                                 {!preview ? (
                                                     <Button
                                                         component="label"
@@ -454,21 +429,19 @@ function PaginaConfirmacion() {
                                                             background: 'linear-gradient(45deg, #FF6B9D 30%, #FFD54F 90%)',
                                                             color: '#fff',
                                                             borderRadius: '50px',
-                                                            px: 6,
-                                                            py: 2.2,
-                                                            fontSize: '1.1rem',
+                                                            px: 3,
+                                                            py: 1,
+                                                            fontSize: '0.8rem',
                                                             textTransform: 'none',
                                                             fontWeight: 900,
-                                                            boxShadow: '0 12px 25px rgba(255, 107, 157, 0.35)',
+                                                            boxShadow: '0 4px 10px rgba(255, 107, 157, 0.2)',
                                                             '&:hover': {
                                                                 background: 'linear-gradient(45deg, #FF8C94 30%, #FFB800 90%)',
-                                                                transform: 'translateY(-3px)',
-                                                                boxShadow: '0 15px 30px rgba(255, 107, 157, 0.45)'
-                                                            },
-                                                            transition: 'all 0.3s'
+                                                                transform: 'translateY(-1px)'
+                                                            }
                                                         }}
                                                     >
-                                                        SELECCIONAR COMPROBANTE
+                                                        SUBIR COMPROBANTE
                                                         <input type="file" hidden accept="image/*" onChange={handleFileSelect} />
                                                     </Button>
                                                 ) : (
@@ -476,26 +449,24 @@ function PaginaConfirmacion() {
                                                         variant="contained"
                                                         onClick={handleUpload}
                                                         disabled={uploading}
-                                                        startIcon={uploading ? <CircularProgress size={24} color="inherit" /> : <CloudUploadIcon />}
+                                                        startIcon={uploading ? <CircularProgress size={16} color="inherit" /> : <CloudUploadIcon />}
                                                         sx={{
                                                             background: 'linear-gradient(45deg, #4CAF50 30%, #8BC34A 90%)',
                                                             color: '#fff',
                                                             borderRadius: '50px',
-                                                            px: 6,
-                                                            py: 2.2,
-                                                            fontSize: '1.1rem',
+                                                            px: 3,
+                                                            py: 1,
+                                                            fontSize: '0.8rem',
                                                             textTransform: 'none',
                                                             fontWeight: 900,
-                                                            boxShadow: '0 12px 25px rgba(76, 175, 80, 0.35)',
+                                                            boxShadow: '0 4px 10px rgba(76, 175, 80, 0.2)',
                                                             '&:hover': {
                                                                 background: 'linear-gradient(45deg, #66BB6A 30%, #9CCC65 90%)',
-                                                                transform: 'translateY(-3px)',
-                                                                boxShadow: '0 15px 30px rgba(76, 175, 80, 0.45)'
-                                                            },
-                                                            transition: 'all 0.3s'
+                                                                transform: 'translateY(-1px)'
+                                                            }
                                                         }}
                                                     >
-                                                        {uploading ? 'ENVIANDO...' : 'CONFIRMAR Y ENVIAR'}
+                                                        {uploading ? 'ENVIANDO...' : 'ENVIAR AHORA'}
                                                     </Button>
                                                 )}
                                             </Box>
@@ -531,7 +502,7 @@ function PaginaConfirmacion() {
                         )}
                     </Grid>
 
-                    <Box sx={{ mt: 8, textAlign: 'center' }}>
+                    <Box sx={{ mt: 4, textAlign: 'center' }}>
                         <Button
                             startIcon={<ArrowBackIcon />}
                             onClick={() => navigate('/')}

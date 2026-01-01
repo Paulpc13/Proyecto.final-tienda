@@ -9,6 +9,8 @@ import Header from '../components/layout/Header';
 import ProductSection from '../components/ProductSection';
 import ReservaModal from '../components/ReservaModal';
 
+
+
 export default function PaginaInicio() {
   const navigate = useNavigate();
   const { token, logout, isAdmin } = useContext(AuthContext);
@@ -134,6 +136,23 @@ export default function PaginaInicio() {
   },
 };
 
+const iconBoxStyle = {
+  width: 36,
+  height: 36,
+  borderRadius: "50%",
+  background: "#FF6B9D",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  transition: "all 0.25s ease",
+  "&:hover": {
+    transform: "scale(1.2)",
+    boxShadow: "0 6px 14px rgba(0,0,0,0.25)",
+  },
+};
+
+
   return (
     <ThemeProvider theme={theme}>
       <div style={{
@@ -221,9 +240,9 @@ export default function PaginaInicio() {
           onReservar={handleReservar}
           onAddToCarrito={handleAddToCarrito}
         />
+        
 
-       {/* Footer */}
-<Box
+       <Box
   sx={{
     background: "#a9e2f3ff",
     padding: { xs: "40px 20px", md: "60px 80px" },
@@ -238,105 +257,93 @@ export default function PaginaInicio() {
     }}
   >
     {/* Columna 1 */}
-<Box>
-  {/* SOLO EL NOMBRE CON HOVER */}
-  <Box
-    sx={{
-      display: "inline-block",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      "&:hover": {
-        transform: "scale(1.05)",
-        filter: "drop-shadow(0px 6px 12px rgba(0,0,0,0.25))",
-      },
-    }}
-  >
-    <Typography
-      variant="h4"
-      sx={{
-        fontWeight: "bold",
-        color: "#FF6B9D",
-        transition: "color 0.3s ease",
-        "&:hover": {
-          color: "#ff4f8b",
-        },
-      }}
-    >
-      BURBUJITAS
-    </Typography>
+    <Box>
+      <Box
+        sx={{
+          display: "inline-block",
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            transform: "scale(1.05)",
+            filter: "drop-shadow(0px 6px 12px rgba(0,0,0,0.25))",
+          },
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: "bold",
+            color: "#FF6B9D",
+          }}
+        >
+          BURBUJITAS
+        </Typography>
 
-    <Typography
-      variant="h5"
-      sx={{
-        fontWeight: "bold",
-        color: "#FFC74F",
-        transition: "color 0.3s ease",
-        "&:hover": {
-          color: "#ffb703",
-        },
-      }}
-    >
-      DE COLORES
-    </Typography>
-  </Box>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: "bold",
+            color: "#FFC74F",
+          }}
+        >
+          DE COLORES
+        </Typography>
+      </Box>
 
-  {/* TEXTO NORMAL (SIN HOVER) */}
-  <Typography variant="body2" sx={{ color: "#555", marginTop: "10px" }}>
-    Tu fiesta perfecta empieza aquí
-  </Typography>
+      <Typography variant="body2" sx={{ color: "#555", marginTop: "10px" }}>
+        Tu fiesta perfecta empieza aquí
+      </Typography>
 
-  <Typography variant="body2" sx={{ color: "#777" }}>
-    © 2025 BURBUJITAS DE COLORES
-  </Typography>
-</Box>
+      <Typography variant="body2" sx={{ color: "#777" }}>
+        © 2025 BURBUJITAS DE COLORES
+      </Typography>
+    </Box>
 
-   {/* Columna 2 */}
-<Box>
-  <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>
-    BURBUJITAS
-  </Typography>
+    {/* Columna 2 */}
+    <Box>
+      <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>
+        BURBUJITAS
+      </Typography>
 
-  {[
-    { text: "¿Quiénes somos?", path: "/quienes-somos" },
-    { text: "Sobre nosotros", path: "/quienes-somos" },
-    { text: "Ingresar", path: "/login" },
-    { text: "Términos y condiciones", path: "/terminos" },
-    { text: "Política de privacidad", path: "/privacidad" },
-    { text: "Contacto", path: "/contacto" },
-  ].map((item) => (
-    <Typography
-      key={item.text}
-      sx={footerHoverStyle}
-      onClick={() => navigate(item.path)}
-    >
-      {item.text}
-    </Typography>
-  ))}
-</Box>
-
+      {[
+        { text: "¿Quiénes somos?", path: "/quienes-somos" },
+        { text: "Sobre nosotros", path: "/quienes-somos" },
+        { text: "Ingresar", path: "/login" },
+        { text: "Términos y condiciones", path: "/terminos" },
+        { text: "Política de privacidad", path: "/privacidad" },
+        { text: "Contacto", path: "/contacto" },
+      ].map((item) => (
+        <Typography
+          key={item.text}
+          sx={footerHoverStyle}
+          onClick={() => navigate(item.path)}
+        >
+          {item.text}
+        </Typography>
+      ))}
+    </Box>
 
     {/* Columna 3 */}
-<Box>
-  <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>
-    Servicios
-  </Typography>
+    <Box>
+      <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>
+        Servicios
+      </Typography>
 
-  {[
-    { text: "Solicitar servicio", path: "/solicitar-servicio" },
-    { text: "Arma tu fiesta", path: "/arma-tu-fiesta" },
-    { text: "Ofertas", path: "/ofertas" },
-    { text: "Quiero ser proveedor", path: "/proveedor" },
-  ].map((item) => (
-    <Typography
-      key={item.text}
-      sx={footerHoverStyle}
-      onClick={() => navigate(item.path)}
-    >
-      {item.text}
-    </Typography>
-  ))}
-</Box>
-
+      {[
+        { text: "Solicitar servicio", path: "/solicitar-servicio" },
+        { text: "Arma tu fiesta", path: "/arma-tu-fiesta" },
+        { text: "Ofertas", path: "/ofertas" },
+        { text: "Quiero ser proveedor", path: "/proveedor" },
+      ].map((item) => (
+        <Typography
+          key={item.text}
+          sx={footerHoverStyle}
+          onClick={() => navigate(item.path)}
+        >
+          {item.text}
+        </Typography>
+      ))}
+    </Box>
 
     {/* Columna 4 */}
     <Box>
@@ -345,47 +352,60 @@ export default function PaginaInicio() {
       </Typography>
 
       <Box sx={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
-        {["f", "🎵", "📸", "▶️"].map((icon, i) => (
-          <Box
-            key={i}
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              background: "#FF6B9D",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontWeight: "bold",
-              cursor: "pointer",
-              transition: "all 0.25s ease",
+        <Box sx={iconBoxStyle}>
+          <img src="/icons/facebook.png" alt="Facebook" width="20" />
+        </Box>
 
-              "&:hover": {
-                transform: "scale(1.2)",
-                boxShadow: "0 6px 14px rgba(0,0,0,0.25)",
-              },
-            }}
-          >
-            {icon}
-          </Box>
-        ))}
+        <Box sx={iconBoxStyle}>
+          <img src="/icons/instagram.png" alt="Instagram" width="20" />
+        </Box>
+
+        <Box sx={iconBoxStyle}>
+          <img src="/icons/tik-tok.png" alt="TikTok" width="20" />
+        </Box>
       </Box>
 
       <Typography sx={{ fontWeight: "bold", marginBottom: "10px" }}>
         Contacto
       </Typography>
 
-      <Typography >
+      <Typography sx={{ marginBottom: "8px" }}>
         info@burbujitasdecolores.com
       </Typography>
 
-      <Typography >
-        WhatsApp: +593 91362088
-      </Typography>
+      {/* WhatsApp ícono ) */}
+      <Box
+        component="a"
+        href="https://wa.me/59391362088"
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          textDecoration: "none",
+          color: "inherit",
+          cursor: "pointer",
+          "&:hover": {
+            textDecoration: "underline",
+          },
+        }}
+      >
+        <img
+          src="/icons/whatsapp.png"
+          alt="WhatsApp"
+          width="30"
+          height="30"
+        />
+        <Typography component="span">
+          WhatsApp: +593 91362088
+        </Typography>
+      </Box>
     </Box>
   </Box>
 </Box>
+
+
         {/* Modal de Reserva */}
         <ReservaModal
           open={modalOpen}

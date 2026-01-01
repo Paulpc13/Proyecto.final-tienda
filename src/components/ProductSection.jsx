@@ -18,33 +18,64 @@ export default function ProductSection({
 
   const scrollRef = useRef(null);
 
+  // === LÓGICA PARA EMOJIS DIFERENTES  ===
+  const getSectionEmojis = (text) => {
+    const val = text.toLowerCase();
+    if (val.includes('navidad')) return { izq: '🎁', der: '🎄' };
+    if (val.includes('año') || val.includes('fin')) return { izq: '🎊', der: '🥂' };
+    if (val.includes('promocion')) return { izq: '📣', der: '🎉' };
+    return { izq: '✨', der: '✨' };
+  };
+
+  const emojis = getSectionEmojis(title);
+
   const handleScroll = (direction) => {
     if (scrollRef.current) {
       const scrollAmount = direction === 'left' ? -400 : 400;
       scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
+
   return (
     <Container maxWidth="lg" sx={{ paddingY: 4, marginBottom: "40px" }} id={id}>
-      <Typography variant="h3" sx={{
-        textAlign: "center",
-        color: color,
-        fontWeight: "bold",
-        marginBottom: "30px",
-        textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+      
+      {/* === TÍTULO CENTRADO CON EMOJIS A LOS LADOS === */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        gap: { xs: 2, md: 4 }, 
+        marginBottom: "30px" 
       }}>
-        {title}
-      </Typography>
+        <Typography sx={{ fontSize: { xs: '2rem', md: '3.5rem' } }}>
+          {emojis.izq}
+        </Typography>
+
+        <Typography variant="h3" sx={{
+          textAlign: "center",
+          color: color,
+          fontWeight: "bold",
+          textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
+          fontSize: { xs: '2rem', md: '3.5rem' },
+          fontFamily: "'Fredoka One', cursive, sans-serif" 
+        }}>
+          {title}
+        </Typography>
+
+        <Typography sx={{ fontSize: { xs: '2rem', md: '3.5rem' } }}>
+          {emojis.der}
+        </Typography>
+      </Box>
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
           <CircularProgress size={50} />
         </Box>
       )}
-{items.length > 0 && (
+
+      {items.length > 0 && (
         <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           
-          {/* Flecha Izquierda */}
           <IconButton 
             onClick={() => handleScroll('left')}
             sx={{ 
@@ -57,15 +88,15 @@ export default function ProductSection({
           </IconButton>
 
           <Box 
-            ref={scrollRef} // Referencia para el movimiento
+            ref={scrollRef} 
             sx={{ 
-              display: 'flex', // Pone los productos uno al lado del otro
-              overflowX: 'auto', // Permite deslizar
+              display: 'flex', 
+              overflowX: 'auto', 
               gap: 3,
               paddingX: 1,
               paddingY: 2,
               scrollBehavior: 'smooth',
-              '&::-webkit-scrollbar': { display: 'none' }, // Esconde la barra de scroll
+              '&::-webkit-scrollbar': { display: 'none' }, 
               msOverflowStyle: 'none',
               scrollbarWidth: 'none',
             }}
@@ -74,8 +105,8 @@ export default function ProductSection({
               <Box 
                 key={item.id} 
                 sx={{ 
-                  minWidth: { xs: '280px', sm: '320px' }, // Ancho fijo para cada tarjeta
-                  flexShrink: 0 // Evita que las tarjetas se aplasten
+                  minWidth: { xs: '280px', sm: '320px' }, 
+                  flexShrink: 0 
                 }}
               >
                 <ProductCard
@@ -89,7 +120,6 @@ export default function ProductSection({
             ))}
           </Box>
 
-          {/* Flecha Derecha */}
           <IconButton 
             onClick={() => handleScroll('right')}
             sx={{ 
@@ -108,7 +138,7 @@ export default function ProductSection({
         <Box sx={{
           textAlign: "center",
           py: 5,
-          background: `${color}1A`, // 10% opacity
+          background: `${color}1A`, 
           borderRadius: "15px",
           padding: "40px",
         }}>

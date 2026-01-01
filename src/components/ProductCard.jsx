@@ -12,7 +12,20 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 export default function ProductCard({ item, tipo, index, onReservar, onAddToCarrito }) {
   
-  // 1. FORZAMOS EL COLOR SEGÚN EL TIPO
+  
+  const getIcon = () => {
+    const name = item.nombre?.toLowerCase() || "";
+    if (name.includes('navidad')) return '🎄'; 
+    if (name.includes('año') || name.includes('fin')) return '🎁'; 
+    
+    switch (tipo) {
+      case 'servicio': return '🎈';
+      case 'combo': return '🎁';
+      case 'promocion': return '🎊';
+      default: return '🎉';
+    }
+  };
+
   const getColor = () => {
     switch (tipo) {
       case 'servicio': return '#FF6B9D';
@@ -27,13 +40,12 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
   return (
     <Card
       sx={{
-        // === CLAVE: DIMENSIONES FIJAS TOTALES ===
-        width: '320px',      // Ancho exacto para todas
-        height: '520px',     // Alto exacto para todas
+        width: '320px',      
+        height: '520px',     
         display: "flex",
         flexDirection: "column",
         borderRadius: "20px",
-        mx: 'auto',          // Centra la tarjeta en su espacio
+        mx: 'auto',          
         transition: "transform 0.3s ease",
         boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
         "&:hover": {
@@ -41,27 +53,41 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
         },
       }}
     >
-      {/* SECCIÓN DE IMAGEN: El "Marco" profesional */}
+      {/* SECCIÓN DE IMAGEN / ICONO */}
       <Box
         sx={{
           width: '100%',
-          height: '220px',     // Altura fija del área de imagen
+          height: '220px',     
           position: 'relative',
           overflow: 'hidden',
-          backgroundColor: '#f5f5f5'
+          backgroundColor: '#f5f5f5',
+          // Centrado para el icono cuando no hay imagen
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Box
-          component="img"
-          src={item.imagen || '/img/placeholder.jpg'}
-          alt={item.nombre}
-          sx={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover', // Recorta la imagen para llenar el cuadro sin deformar
-            objectPosition: 'center',
-          }}
-        />
+        {item.imagen ? (
+          <Box
+            component="img"
+            src={item.imagen}
+            alt={item.nombre}
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
+          />
+        ) : (
+          
+          <Typography sx={{ 
+            fontSize: "100px", 
+            filter: "drop-shadow(3px 3px 6px rgba(0,0,0,0.15))" 
+          }}>
+            {getIcon()}
+          </Typography>
+        )}
         
         {tipo === 'promocion' && item.descuento_porcentaje && (
           <Chip
@@ -74,7 +100,6 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
         )}
       </Box>
 
-      {/* CUERPO: Alineación de textos */}
       <CardContent sx={{ 
         flexGrow: 1, 
         display: 'flex', 
@@ -86,7 +111,7 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
           sx={{ 
             fontWeight: "bold", 
             color: getColor(),
-            height: '64px',      // Reserva espacio para 2 líneas de título
+            height: '64px',      
             overflow: 'hidden',
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -102,7 +127,7 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
           variant="body2" 
           color="textSecondary" 
           sx={{ 
-            height: '40px',      // Reserva espacio para 2 líneas de descripción
+            height: '40px',      
             overflow: 'hidden',
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -120,7 +145,6 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
         </Box>
       </CardContent>
 
-      {/* BOTONES: Siempre al fondo */}
       <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
         <Button
           variant="contained"

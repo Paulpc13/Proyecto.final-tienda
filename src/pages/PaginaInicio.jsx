@@ -9,7 +9,12 @@ import Header from '../components/layout/Header';
 import ProductSection from '../components/ProductSection';
 import ReservaModal from '../components/ReservaModal';
 
-
+// === 1. IMÁGENES PARA EL CARRUSEL  ===
+const bannerImages = [
+  '/img/banner-fiesta.jpg', 
+  '/img/banner-bodas.jpeg',
+  '/img/banner-niños.jpg'
+];
 
 export default function PaginaInicio() {
   const navigate = useNavigate();
@@ -28,6 +33,16 @@ export default function PaginaInicio() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
+
+  // === 2. ESTADO Y LÓGICA DEL CARRUSEL ===
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % bannerImages.length);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +63,6 @@ export default function PaginaInicio() {
     };
     fetchData();
 
-    // Cargar contador del carrito si hay token
     if (token) {
       fetchCarritoCount();
     }
@@ -57,11 +71,9 @@ export default function PaginaInicio() {
   const fetchCarritoCount = async () => {
     try {
       const res = await getCarrito();
-      // La API devuelve una LISTA de carritos (aunque sea uno solo o vacío)
       const cart = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : null;
       setCarritoCount(cart?.items?.length || 0);
     } catch (err) {
-      // Si falla (endpoint no implementado), usar 0
       setCarritoCount(0);
     }
   };
@@ -71,14 +83,7 @@ export default function PaginaInicio() {
       navigate('/login');
       return;
     }
-   
-    <div style={{
-        minHeight: "100vh",
-        width: "100%", 
-        background: "linear-gradient(180deg, #fff9e6 0%, #ffe6f0 100%)",
-        overflowX: "hidden"
-      }}></div>
-
+    
     try {
       const data = {
         tipo: tipo,
@@ -114,14 +119,13 @@ export default function PaginaInicio() {
       return;
     }
 
-    // Abrir modal con el item seleccionado
     setSelectedItem(item);
     setSelectedTipo(tipo);
     setModalOpen(true);
   };
 
   const handleReservaCreada = (codigo) => {
-    setModalOpen(false); // CERRAR MODAL
+    setModalOpen(false); 
     setSnackbarMsg(`✅ Reserva creada exitosamente`);
     setSnackbarOpen(true);
   };
@@ -130,7 +134,7 @@ export default function PaginaInicio() {
   marginBottom: "8px",
   color: "#555",
   cursor: "pointer",
-  padding: "6px 10px",
+  padding: "4px 8px", 
   borderRadius: "8px",
   width: "fit-content",
   transition: "all 0.25s ease",
@@ -183,54 +187,45 @@ const iconBoxStyle = {
           onLogout={handleLogout}
         />
 
-        {/* Banner Hero */}
+        {/* Banner Hero DINÁMICO  */}
         <Box sx={{
-  width: "100%",
-  height: { xs: "300px", md: "500px" },
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  overflow: "hidden",
-  marginBottom: "40px",
- 
-  backgroundColor: "#ffe6f0", 
-  
-  backgroundImage: "url('/img/banner-fiesta.jpg')", 
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
-  // Esto ayuda a que se vea bien en todas las pantallas
-  backgroundAttachment: "scroll", 
-}}>
-  {/* Capa oscura (Overlay) */}
-  <Box sx={{
-    position: "absolute",
-    top: 0, left: 0, width: "100%", height: "100%",
-    background: "rgba(0, 0, 0, 0.35)", 
-    zIndex: 1
-  }} />
-
-  <Box sx={{ position: "relative", zIndex: 2, textAlign: "center", color: "#fff", px: 4 }}>
-    <Typography variant="h2" sx={{ 
-      fontWeight: 'bold', 
-      textShadow: "3px 3px 12px rgba(0,0,0,0.6)",
-      fontSize: { xs: "2.2rem", md: "3.8rem" },
-      letterSpacing: "1px"
-    }}>
-      ¡Bienvenido a Burbujitas de Colores! ✨
-    </Typography>
-    <Typography variant="h5" sx={{ 
-      mt: 2, 
-      textShadow: "2px 2px 8px rgba(0,0,0,0.6)",
-      fontSize: { xs: "1.1rem", md: "1.6rem" },
-      maxWidth: "850px",
-      mx: "auto"
-    }}>
-      Hacemos de tu fiesta un momento mágico e inolvidable
-    </Typography>
-  </Box>
-</Box>
+          width: "100%",
+          height: { xs: "300px", md: "500px" },
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          marginBottom: "40px",
+          backgroundColor: "#ffe6f0", 
+          // Cambio a imagen dinámica con transición suave
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${bannerImages[currentBanner]})`, 
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          transition: "background-image 1.5s ease-in-out", 
+          backgroundAttachment: "scroll", 
+        }}>
+          <Box sx={{ position: "relative", zIndex: 2, textAlign: "center", color: "#fff", px: 4 }}>
+            <Typography variant="h2" sx={{ 
+              fontWeight: 'bold', 
+              textShadow: "3px 3px 12px rgba(0,0,0,0.6)",
+              fontSize: { xs: "2.2rem", md: "3.8rem" },
+              letterSpacing: "1px"
+            }}>
+              ¡Bienvenido a Burbujitas de Colores! ✨
+            </Typography>
+            <Typography variant="h5" sx={{ 
+              mt: 2, 
+              textShadow: "2px 2px 8px rgba(0,0,0,0.6)",
+              fontSize: { xs: "1.1rem", md: "1.6rem" },
+              maxWidth: "850px",
+              mx: "auto"
+            }}>
+              Hacemos de tu fiesta un momento mágico e inolvidable
+            </Typography>
+          </Box>
+        </Box>
 
         {error && (
           <Box sx={{ px: 4, pb: 2 }}>
@@ -238,8 +233,7 @@ const iconBoxStyle = {
           </Box>
         )}
 
-       <Container maxWidth="lg">
-          
+        <Container maxWidth="lg">
           <ProductSection
             id="servicios"
             title="🎈 Nuestros Servicios"
@@ -285,173 +279,65 @@ const iconBoxStyle = {
 
         </Container>
         
-  
-  { /* FOOTER */}
-       <Box
-  sx={{
-    background: "#a9e2f3ff",
-    padding: { xs: "40px 20px", md: "60px 80px" },
-    marginTop: "80px",
-  }}
->
-  <Box
-    sx={{
-      display: "grid",
-      gridTemplateColumns: { xs: "1fr", md: "2fr 1fr 1fr 1fr" },
-      gap: "40px",
-    }}
-  >
-    {/* Columna 1 */}
-    <Box>
-      <Box
-        sx={{
-          display: "inline-block",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            transform: "scale(1.05)",
-            filter: "drop-shadow(0px 6px 12px rgba(0,0,0,0.25))",
-          },
-        }}
-      >
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: "bold",
-            color: "#FF6B9D",
-          }}
-        >
-          BURBUJITAS
-        </Typography>
+        {/* FOOTER ORIGINAL SIN ELIMINAR NADA */}
+        <Box sx={{ background: "#a9e2f3ff", padding: { xs: "40px 20px", md: "60px 80px" }, marginTop: "80px" }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr 1fr 1fr" }, gap: "40px" }}>
+            {/* Columna 1 */}
+            <Box>
+              <Box sx={{ display: "inline-block", cursor: "pointer", transition: "all 0.3s ease", "&:hover": { transform: "scale(1.05)", filter: "drop-shadow(0px 6px 12px rgba(0,0,0,0.25))" } }}>
+                <Typography variant="h4" sx={{ fontWeight: "bold", color: "#FF6B9D" }}>BURBUJITAS</Typography>
+                <Typography variant="h5" sx={{ fontWeight: "bold", color: "#FFC74F" }}>DE COLORES</Typography>
+              </Box>
+              <Typography variant="body2" sx={{ color: "#555", marginTop: "10px" }}>Tu fiesta perfecta empieza aquí</Typography>
+              <Typography variant="body2" sx={{ color: "#777" }}>© 2025 BURBUJITAS DE COLORES</Typography>
+            </Box>
 
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: "bold",
-            color: "#FFC74F",
-          }}
-        >
-          DE COLORES
-        </Typography>
-      </Box>
+            {/* Columna 2 */}
+            <Box>
+              <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>BURBUJITAS</Typography>
+              {[
+                { text: "¿Quiénes somos?", path: "/quienes-somos" },
+                { text: "Sobre nosotros", path: "/quienes-somos" },
+                { text: "Ingresar", path: "/login" },
+                { text: "Términos y condiciones", path: "/terminos" },
+                { text: "Política de privacidad", path: "/privacidad" },
+                { text: "Contacto", path: "/contacto" },
+              ].map((item) => (
+                <Typography key={item.text} sx={footerHoverStyle} onClick={() => navigate(item.path)}>{item.text}</Typography>
+              ))}
+            </Box>
 
-      <Typography variant="body2" sx={{ color: "#555", marginTop: "10px" }}>
-        Tu fiesta perfecta empieza aquí
-      </Typography>
+            {/* Columna 3 */}
+            <Box>
+              <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>Servicios</Typography>
+              {[
+                { text: "Solicitar servicio", path: "/solicitar-servicio" },
+                { text: "Arma tu fiesta", path: "/arma-tu-fiesta" },
+                { text: "Ofertas", path: "/ofertas" },
+                { text: "Quiero ser proveedor", path: "/proveedor" },
+              ].map((item) => (
+                <Typography key={item.text} sx={footerHoverStyle} onClick={() => navigate(item.path)}>{item.text}</Typography>
+              ))}
+            </Box>
 
-      <Typography variant="body2" sx={{ color: "#777" }}>
-        © 2025 BURBUJITAS DE COLORES
-      </Typography>
-    </Box>
-
-    {/* Columna 2 */}
-    <Box>
-      <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>
-        BURBUJITAS
-      </Typography>
-
-      {[
-        { text: "¿Quiénes somos?", path: "/quienes-somos" },
-        { text: "Sobre nosotros", path: "/quienes-somos" },
-        { text: "Ingresar", path: "/login" },
-        { text: "Términos y condiciones", path: "/terminos" },
-        { text: "Política de privacidad", path: "/privacidad" },
-        { text: "Contacto", path: "/contacto" },
-      ].map((item) => (
-        <Typography
-          key={item.text}
-          sx={footerHoverStyle}
-          onClick={() => navigate(item.path)}
-        >
-          {item.text}
-        </Typography>
-      ))}
-    </Box>
-
-    {/* Columna 3 */}
-    <Box>
-      <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>
-        Servicios
-      </Typography>
-
-      {[
-        { text: "Solicitar servicio", path: "/solicitar-servicio" },
-        { text: "Arma tu fiesta", path: "/arma-tu-fiesta" },
-        { text: "Ofertas", path: "/ofertas" },
-        { text: "Quiero ser proveedor", path: "/proveedor" },
-      ].map((item) => (
-        <Typography
-          key={item.text}
-          sx={footerHoverStyle}
-          onClick={() => navigate(item.path)}
-        >
-          {item.text}
-        </Typography>
-      ))}
-    </Box>
-
-    {/* Columna 4 */}
-    <Box>
-      <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>
-        Redes Sociales
-      </Typography>
-
-      <Box sx={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
-        <Box sx={iconBoxStyle}>
-          <img src="/icons/facebook.png" alt="Facebook" width="20" />
+            {/* Columna 4 CON TIKTOK INTACTO */}
+            <Box>
+              <Typography sx={{ fontWeight: "bold", marginBottom: "15px" }}>Redes Sociales</Typography>
+              <Box sx={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
+                <Box sx={iconBoxStyle}><img src="/icons/facebook.png" alt="Facebook" width="20" /></Box>
+                <Box sx={iconBoxStyle}><img src="/icons/instagram.png" alt="Instagram" width="20" /></Box>
+                <Box sx={iconBoxStyle}><img src="/icons/tik-tok.png" alt="TikTok" width="20" /></Box>
+              </Box>
+              <Typography sx={{ fontWeight: "bold", marginBottom: "10px" }}>Contacto</Typography>
+              <Typography sx={{ marginBottom: "8px" }}>info@burbujitasdecolores.com</Typography>
+              <Box component="a" href="https://wa.me/59391362088" target="_blank" rel="noopener noreferrer" sx={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", color: "inherit", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}>
+                <img src="/icons/whatsapp.png" alt="WhatsApp" width="30" height="30" />
+                <Typography component="span">WhatsApp: +593 91362088</Typography>
+              </Box>
+            </Box>
+          </Box>
         </Box>
 
-        <Box sx={iconBoxStyle}>
-          <img src="/icons/instagram.png" alt="Instagram" width="20" />
-        </Box>
-
-        <Box sx={iconBoxStyle}>
-          <img src="/icons/tik-tok.png" alt="TikTok" width="20" />
-        </Box>
-      </Box>
-
-      <Typography sx={{ fontWeight: "bold", marginBottom: "10px" }}>
-        Contacto
-      </Typography>
-
-      <Typography sx={{ marginBottom: "8px" }}>
-        info@burbujitasdecolores.com
-      </Typography>
-
-      {/* WhatsApp ícono ) */}
-      <Box
-        component="a"
-        href="https://wa.me/59391362088"
-        target="_blank"
-        rel="noopener noreferrer"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          textDecoration: "none",
-          color: "inherit",
-          cursor: "pointer",
-          "&:hover": {
-            textDecoration: "underline",
-          },
-        }}
-      >
-        <img
-          src="/icons/whatsapp.png"
-          alt="WhatsApp"
-          width="30"
-          height="30"
-        />
-        <Typography component="span">
-          WhatsApp: +593 91362088
-        </Typography>
-      </Box>
-    </Box>
-  </Box>
-</Box>
-
-
-        {/* Modal de Reserva */}
         <ReservaModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
@@ -460,7 +346,6 @@ const iconBoxStyle = {
           onReservaCreada={handleReservaCreada}
         />
 
-     {/* Snackbar para notificaciones */}
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={3000}
@@ -472,4 +357,3 @@ const iconBoxStyle = {
     </ThemeProvider>
   );
 }
-

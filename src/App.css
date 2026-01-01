@@ -1,4 +1,4 @@
-/* 1. Limpieza total: Esto quita los márgenes que empujan el diseño hacia los lados */
+
 #root {
   width: 100%;
   max-width: 100vw; /* Usa todo el ancho de la pantalla */
@@ -10,7 +10,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden; /* Evita que la página se mueva hacia los lados */
-  background-color: #fffafb; /* Un fondo rosado casi imperceptible */
+  background-color: #fffafb; 
 }
 
 /* 2. Banner de Bienvenida: Una sola foto, sin cuadros laterales */
@@ -24,18 +24,18 @@ body {
 .hero-banner-unico img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ajusta la foto sin deformarla */
+  object-fit: cover; 
 }
 
-/* 3. Bloques Centrales: Esto es lo que elimina los cuadros que no querías */
+
 .seccion-centrada {
-  max-width: 1200px; /* Centra el contenido como en la foto de ejemplo */
+  max-width: 1200px; 
   margin: 0 auto 60px auto; 
-  padding: 0 40px; /* Espacio para que las flechas tengan lugar */
+  padding: 0 40px;
 }
 
 .titulo-categoria {
-  color: #ff69b4; /* El rosa de Burbujitas */
+  color: #ff69b4; 
   font-family: 'Arial Rounded MT Bold', sans-serif;
   font-size: 2.5rem;
   margin-bottom: 30px;
@@ -66,7 +66,7 @@ body {
   margin: 10px 0;
 }
 
-/* 5. Flechas de navegación: Grandes y oscuras como las que viste */
+
 .swiper-button-next, .swiper-button-prev {
   color: #333 !important; /* Flechas negras/gris oscuro */
   background: rgba(255, 255, 255, 0.8);

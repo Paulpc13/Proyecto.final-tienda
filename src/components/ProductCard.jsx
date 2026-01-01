@@ -10,25 +10,9 @@ import {
 } from '@mui/material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
-const serviceColors = [
-  'linear-gradient(135deg, #FF6B9D 0%, #FF8C94 100%)',
-  'linear-gradient(135deg, #FFC74F 0%, #FFE66D 100%)',
-  'linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)',
-  'linear-gradient(135deg, #FF6348 0%, #FF8C42 100%)',
-  'linear-gradient(135deg, #A8E6CF 0%, #56CCF2 100%)',
-  'linear-gradient(135deg, #FFB997 0%, #FFB584 100%)',
-];
-
 export default function ProductCard({ item, tipo, index, onReservar, onAddToCarrito }) {
-  const getIcon = () => {
-    switch (tipo) {
-      case 'servicio': return '🎈';
-      case 'combo': return '🎁';
-      case 'promocion': return '🎊';
-      default: return '🎉';
-    }
-  };
-
+  
+  // 1. FORZAMOS EL COLOR SEGÚN EL TIPO
   const getColor = () => {
     switch (tipo) {
       case 'servicio': return '#FF6B9D';
@@ -38,148 +22,130 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
     }
   };
 
-  const getGradient = () => {
-    switch (tipo) {
-      case 'servicio': return serviceColors[index % serviceColors.length];
-      case 'combo': return 'linear-gradient(135deg, #FFC74F 0%, #FFE66D 100%)';
-      case 'promocion': return 'linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)';
-      default: return serviceColors[0];
-    }
-  };
-
   const precio = item.precio_base || item.precio_combo || item.precio_total || 0;
-
-  const getPriceDisplay = () => {
-    if (tipo === 'promocion') {
-      if (item.descuento_porcentaje > 0) return `${item.descuento_porcentaje}% OFF`;
-      if (item.descuento_monto > 0) return `$${item.descuento_monto} OFF`;
-      return 'Oferta';
-    }
-    return `$${precio}`;
-  };
 
   return (
     <Card
       sx={{
-        height: "100%",
+        // === CLAVE: DIMENSIONES FIJAS TOTALES ===
+        width: '320px',      // Ancho exacto para todas
+        height: '520px',     // Alto exacto para todas
         display: "flex",
         flexDirection: "column",
         borderRadius: "20px",
-        overflow: "hidden",
-        transition: "all 0.3s ease",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-        border: tipo === 'promocion' ? "3px solid #4ECDC4" : "none",
+        mx: 'auto',          // Centra la tarjeta en su espacio
+        transition: "transform 0.3s ease",
+        boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
         "&:hover": {
-          transform: "translateY(-15px)",
-          boxShadow: "0 20px 48px rgba(0,0,0,0.2)",
+          transform: "translateY(-10px)",
         },
       }}
     >
-      {/* Imagen/Fondo */}
+      {/* SECCIÓN DE IMAGEN: El "Marco" profesional */}
       <Box
         sx={{
-          height: 250,
-          background: item.imagen
-            ? `url(${item.imagen}) center/cover no-repeat`
-            : getGradient(),
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#fff",
-          fontSize: "80px",
-          position: "relative",
-          overflow: "hidden",
+          width: '100%',
+          height: '220px',     // Altura fija del área de imagen
+          position: 'relative',
+          overflow: 'hidden',
+          backgroundColor: '#f5f5f5'
         }}
       >
+        <Box
+          component="img"
+          src={item.imagen || '/img/placeholder.jpg'}
+          alt={item.nombre}
+          sx={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover', // Recorta la imagen para llenar el cuadro sin deformar
+            objectPosition: 'center',
+          }}
+        />
+        
         {tipo === 'promocion' && item.descuento_porcentaje && (
           <Chip
             label={`${item.descuento_porcentaje}% OFF`}
             sx={{
-              position: "absolute",
-              top: 15,
-              right: 15,
-              background: "#FF6348",
-              color: "#fff",
-              fontWeight: "bold",
-              fontSize: "16px",
-              padding: "5px",
+              position: "absolute", top: 10, right: 10,
+              background: "#FF6348", color: "#fff", fontWeight: "bold"
             }}
           />
         )}
-        {!item.imagen && (
-          <span style={{
-            fontSize: "100px",
-            filter: "drop-shadow(3px 3px 6px rgba(0,0,0,0.2))",
-          }}>
-            {getIcon()}
-          </span>
-        )}
       </Box>
 
-      {/* Contenido */}
-      <CardContent sx={{ flexGrow: 1, pb: 0 }}>
-        <Typography variant="h5" component="div" sx={{
-          fontWeight: "bold",
-          color: getColor(),
-          marginBottom: "10px",
-        }}>
+      {/* CUERPO: Alineación de textos */}
+      <CardContent sx={{ 
+        flexGrow: 1, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        p: 2 
+      }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: "bold", 
+            color: getColor(),
+            height: '64px',      // Reserva espacio para 2 líneas de título
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            lineHeight: 1.2,
+            mb: 1
+          }}
+        >
           {item.nombre}
         </Typography>
-        <Typography variant="body2" color="textSecondary" sx={{ marginBottom: "15px" }}>
-          {item.descripcion || `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} especial para tu fiesta`}
+
+        <Typography 
+          variant="body2" 
+          color="textSecondary" 
+          sx={{ 
+            height: '40px',      // Reserva espacio para 2 líneas de descripción
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            mb: 2
+          }}
+        >
+          {item.descripcion || `Especial para tu fiesta de colores`}
         </Typography>
-        {tipo === 'promocion' && item.fecha_fin && (
-          <Typography variant="body2" sx={{ color: "#666", fontStyle: "italic", mb: 1 }}>
-            Válido hasta: {new Date(item.fecha_fin).toLocaleDateString()}
+
+        <Box sx={{ mt: 'auto' }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#333" }}>
+            ${precio}
           </Typography>
-        )}
-        <Typography variant="h6" sx={{
-          color: tipo === 'combo' ? '#FF6B9D' : '#FFC74F',
-          fontWeight: "bold",
-          fontSize: "24px",
-        }}>
-          {getPriceDisplay()}
-        </Typography>
+        </Box>
       </CardContent>
 
-      {/* Botones */}
-      <CardActions sx={{ gap: "10px", pt: "20px", pb: "20px", px: "16px" }}>
+      {/* BOTONES: Siempre al fondo */}
+      <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
         <Button
-          fullWidth
           variant="contained"
-          sx={{
-            background: "linear-gradient(135deg, #FF6B9D 0%, #FF8C94 100%)",
-            color: "#fff",
-            fontWeight: "bold",
-            borderRadius: "15px",
-            textTransform: "none",
-            fontSize: "15px",
-            "&:hover": {
-              background: "linear-gradient(135deg, #FF8C94 0%, #FF6B9D 100%)",
-            },
-          }}
+          fullWidth
           onClick={() => onReservar(item, tipo)}
+          sx={{ 
+            bgcolor: getColor(), 
+            borderRadius: '10px',
+            textTransform: 'none',
+            '&:hover': { bgcolor: getColor(), filter: 'brightness(0.9)' }
+          }}
         >
-          🎯 {tipo === 'promocion' ? 'Aprovechar Ahora' : tipo === 'combo' ? 'Reservar Combo' : 'Reservar'}
+          Reservar
         </Button>
         <Button
-          fullWidth
-          variant="contained"
-          startIcon={<AddShoppingCartIcon />}
-          sx={{
-            background: "linear-gradient(135deg, #FFC74F 0%, #FFE66D 100%)",
-            color: "#fff",
-            fontWeight: "bold",
-            borderRadius: "15px",
-            textTransform: "none",
-            fontSize: "15px",
-            "&:hover": {
-              background: "linear-gradient(135deg, #FFE66D 0%, #FFC74F 100%)",
-            },
-          }}
+          variant="outlined"
           onClick={() => onAddToCarrito(item, tipo)}
+          sx={{ 
+            minWidth: '50px', 
+            borderRadius: '10px', 
+            color: getColor(), 
+            borderColor: getColor() 
+          }}
         >
-          Agregar
+          <AddShoppingCartIcon fontSize="small" />
         </Button>
       </CardActions>
     </Card>

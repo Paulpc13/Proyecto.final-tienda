@@ -1,5 +1,6 @@
-import React from 'react';
-import { Container, Typography, Box, CircularProgress } from '@mui/material';
+import React, { useRef } from 'react';
+import { Container, Typography, Box, CircularProgress, IconButton } from '@mui/material';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import ProductCard from './ProductCard';
 
 export default function ProductSection({ 
@@ -14,6 +15,15 @@ export default function ProductSection({
   onReservar, 
   onAddToCarrito 
 }) {
+
+  const scrollRef = useRef(null);
+
+  const handleScroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -400 : 400;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
   return (
     <Container maxWidth="lg" sx={{ paddingY: 4, marginBottom: "40px" }} id={id}>
       <Typography variant="h3" sx={{
@@ -31,28 +41,66 @@ export default function ProductSection({
           <CircularProgress size={50} />
         </Box>
       )}
+{items.length > 0 && (
+        <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          
+          {/* Flecha Izquierda */}
+          <IconButton 
+            onClick={() => handleScroll('left')}
+            sx={{ 
+              position: 'absolute', left: -20, zIndex: 2, 
+              backgroundColor: 'white', '&:hover': { backgroundColor: '#f0f0f0' },
+              boxShadow: 3, display: { xs: 'none', md: 'flex' } 
+            }}
+          >
+            <ChevronLeft />
+          </IconButton>
 
-      {items.length > 0 && (
-        <Box sx={{ 
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)'
-          },
-          gap: 3
-        }}>
-          {items.map((item, index) => (
-            <Box key={item.id}>
-              <ProductCard
-                item={item}
-                tipo={tipo}
-                index={index}
-                onReservar={onReservar}
-                onAddToCarrito={onAddToCarrito}
-              />
-            </Box>
-          ))}
+          <Box 
+            ref={scrollRef} // Referencia para el movimiento
+            sx={{ 
+              display: 'flex', // Pone los productos uno al lado del otro
+              overflowX: 'auto', // Permite deslizar
+              gap: 3,
+              paddingX: 1,
+              paddingY: 2,
+              scrollBehavior: 'smooth',
+              '&::-webkit-scrollbar': { display: 'none' }, // Esconde la barra de scroll
+              msOverflowStyle: 'none',
+              scrollbarWidth: 'none',
+            }}
+          >
+            {items.map((item, index) => (
+              <Box 
+                key={item.id} 
+                sx={{ 
+                  minWidth: { xs: '280px', sm: '320px' }, // Ancho fijo para cada tarjeta
+                  flexShrink: 0 // Evita que las tarjetas se aplasten
+                }}
+              >
+                <ProductCard
+                  item={item}
+                  tipo={tipo}
+                  index={index}
+                  onReservar={onReservar}
+                  onAddToCarrito={onAddToCarrito}
+                />
+              </Box>
+            ))}
+          </Box>
+
+          {/* Flecha Derecha */}
+          <IconButton 
+            onClick={() => handleScroll('right')}
+            sx={{ 
+              position: 'absolute', right: -20, zIndex: 2, 
+              backgroundColor: 'white', '&:hover': { backgroundColor: '#f0f0f0' },
+              boxShadow: 3, display: { xs: 'none', md: 'flex' } 
+            }}
+          >
+            <ChevronRight />
+          </IconButton>
+
         </Box>
       )}
 

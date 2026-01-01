@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getServicios, getCombos, getPromociones, addToCarrito, getCarrito } from '../api';
 import { AuthContext } from '../auth/AuthContext';
-import { Box, Typography, Alert, Snackbar } from '@mui/material';
+import { Box, Typography, Alert, Snackbar, Container } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from '../theme/theme';
 import Header from '../components/layout/Header';
@@ -71,6 +71,13 @@ export default function PaginaInicio() {
       navigate('/login');
       return;
     }
+   
+    <div style={{
+        minHeight: "100vh",
+        width: "100%", 
+        background: "linear-gradient(180deg, #fff9e6 0%, #ffe6f0 100%)",
+        overflowX: "hidden"
+      }}></div>
 
     try {
       const data = {
@@ -178,20 +185,52 @@ const iconBoxStyle = {
 
         {/* Banner Hero */}
         <Box sx={{
-          background: "linear-gradient(135deg, #FF6B9D 0%, #4ECDC4 100%)",
-          padding: "60px 20px",
-          textAlign: "center",
-          color: "#fff",
-          marginBottom: "40px",
-          boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
-        }}>
-          <Typography variant="h1" sx={{ marginBottom: "20px", textShadow: "3px 3px 6px rgba(0,0,0,0.3)" }}>
-            ¡Bienvenido a Burbujitas de Colores! ✨
-          </Typography>
-          <Typography variant="h5" sx={{ opacity: 0.95, maxWidth: "600px", margin: "0 auto" }}>
-            Descubre nuestros increíbles servicios, combos y promociones para hacer tu fiesta única
-          </Typography>
-        </Box>
+  width: "100%",
+  height: { xs: "300px", md: "500px" },
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "hidden",
+  marginBottom: "40px",
+ 
+  backgroundColor: "#ffe6f0", 
+  
+  backgroundImage: "url('/img/banner-fiesta.jpg')", 
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  // Esto ayuda a que se vea bien en todas las pantallas
+  backgroundAttachment: "scroll", 
+}}>
+  {/* Capa oscura (Overlay) */}
+  <Box sx={{
+    position: "absolute",
+    top: 0, left: 0, width: "100%", height: "100%",
+    background: "rgba(0, 0, 0, 0.35)", 
+    zIndex: 1
+  }} />
+
+  <Box sx={{ position: "relative", zIndex: 2, textAlign: "center", color: "#fff", px: 4 }}>
+    <Typography variant="h2" sx={{ 
+      fontWeight: 'bold', 
+      textShadow: "3px 3px 12px rgba(0,0,0,0.6)",
+      fontSize: { xs: "2.2rem", md: "3.8rem" },
+      letterSpacing: "1px"
+    }}>
+      ¡Bienvenido a Burbujitas de Colores! ✨
+    </Typography>
+    <Typography variant="h5" sx={{ 
+      mt: 2, 
+      textShadow: "2px 2px 8px rgba(0,0,0,0.6)",
+      fontSize: { xs: "1.1rem", md: "1.6rem" },
+      maxWidth: "850px",
+      mx: "auto"
+    }}>
+      Hacemos de tu fiesta un momento mágico e inolvidable
+    </Typography>
+  </Box>
+</Box>
 
         {error && (
           <Box sx={{ px: 4, pb: 2 }}>
@@ -199,49 +238,55 @@ const iconBoxStyle = {
           </Box>
         )}
 
-        {/* Sección de Servicios */}
-        <ProductSection
-          id="servicios"
-          title="🎈 Nuestros Servicios"
-          color="#FF6B9D"
-          items={servicios}
-          tipo="servicio"
-          loading={loading}
-          emptyIcon="🎪"
-          emptyMessage="Aún no hay servicios disponibles"
-          onReservar={handleReservar}
-          onAddToCarrito={handleAddToCarrito}
-        />
+       <Container maxWidth="lg">
+          
+          <ProductSection
+            id="servicios"
+            title="🎈 Nuestros Servicios"
+            color="#FF6B9D"
+            items={servicios}
+            tipo="servicio"
+            loading={loading}
+            emptyIcon="🎪"
+            emptyMessage="Aún no hay servicios disponibles"
+            onReservar={handleReservar}
+            onAddToCarrito={handleAddToCarrito}
+          />
 
-        {/* Sección de Combos */}
-        <ProductSection
-          id="combos"
-          title="🎁 Combos Especiales"
-          color="#FFC74F"
-          items={combos}
-          tipo="combo"
-          loading={loading}
-          emptyIcon="🎁"
-          emptyMessage="Aún no hay combos disponibles"
-          onReservar={handleReservar}
-          onAddToCarrito={handleAddToCarrito}
-        />
+          <Box sx={{ mt: 6 }}>
+            <ProductSection
+              id="combos"
+              title="🎁 Combos Especiales"
+              color="#FFC74F"
+              items={combos}
+              tipo="combo"
+              loading={loading}
+              emptyIcon="🎁"
+              emptyMessage="Aún no hay combos disponibles"
+              onReservar={handleReservar}
+              onAddToCarrito={handleAddToCarrito}
+            />
+          </Box>
 
-        {/* Sección de Promociones */}
-        <ProductSection
-          id="promociones"
-          title="🎊 Promociones Activas"
-          color="#4ECDC4"
-          items={promociones}
-          tipo="promocion"
-          loading={loading}
-          emptyIcon="🎊"
-          emptyMessage="No hay promociones activas"
-          onReservar={handleReservar}
-          onAddToCarrito={handleAddToCarrito}
-        />
+          <Box sx={{ mt: 6 }}>
+            <ProductSection
+              id="promociones"
+              title="🎊 Promociones Activas"
+              color="#4ECDC4"
+              items={promociones}
+              tipo="promocion"
+              loading={loading}
+              emptyIcon="🎊"
+              emptyMessage="No hay promociones activas"
+              onReservar={handleReservar}
+              onAddToCarrito={handleAddToCarrito}
+            />
+          </Box>
+
+        </Container>
         
-
+  
+  { /* FOOTER */}
        <Box
   sx={{
     background: "#a9e2f3ff",

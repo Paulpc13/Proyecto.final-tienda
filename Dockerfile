@@ -28,7 +28,7 @@ COPY . .
 # Vite necesita saber la URL del backend AL MOMENTO DE COMPILAR, ya que al ser un frontend
 # estático, estas variables se "queman" (hardcodean) en el código JavaScript resultante.
 # Nota: En un entorno enterprise real, esto idealmente se inyectaría dinámicamente o se usaría un proxy.
-ENV VITE_API_URL=http://127.0.0.1:8000/api
+ENV VITE_API_URL=https://proyectoweb-backend-239k.onrender.com/api
 
 # Ejecutamos el script de construcción de Vite.
 # Esto transpiló React/JSX a archivos estáticos (HTML, CSS, JS) optimizados y minificados

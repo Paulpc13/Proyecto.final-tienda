@@ -332,7 +332,7 @@ const iconBoxStyle = {
               <Typography sx={{ marginBottom: "8px" }}>info@burbujitasdecolores.com</Typography>
               <Box component="a" href="https://wa.me/593981362088" target="_blank" rel="noopener noreferrer" sx={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", color: "inherit", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}>
                 <img src="/icons/whatsapp.png" alt="WhatsApp" width="30" height="30" />
-                <Typography component="span">WhatsApp: +593 91362088</Typography>
+                <Typography component="span">WhatsApp: +593 981362088</Typography>
               </Box>
             </Box>
           </Box>

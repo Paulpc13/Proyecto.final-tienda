@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api/client';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// El API_URL ya se maneja en client.js
+// const API_URL = import.meta.env.VITE_API_URL;
 
 function RegisterPage() {
   const [usuario, setUsuario] = useState('');
@@ -35,7 +36,7 @@ function RegisterPage() {
     };
 
     try {
-      await axios.post(`${API_URL}/registro/`, payload);
+      await api.post('/registro/', payload);
 
       setSuccess(true);
       setIsLoading(false);

@@ -78,7 +78,7 @@ export default function ReservaModal({
         const fechaFormateada = fechaEvento.toISOString().split('T')[0];
         const res = await getHorariosDisponibles(fechaFormateada);
 
-        if (res.data && res.data.length > 0) {
+        if (Array.isArray(res.data) && res.data.length > 0) {
           setHorarios(res.data);
         } else {
           setHorarios([]);
@@ -371,12 +371,14 @@ export default function ReservaModal({
                     <MenuItem disabled>
                       Sin horarios disponibles
                     </MenuItem>
-                  ) : (
+                  ) : Array.isArray(horarios) && horarios.length > 0 ? (
                     horarios.map((h) => (
                       <MenuItem key={h.id} value={h.id}>
                         {h.hora_inicio} - {h.hora_fin}
                       </MenuItem>
                     ))
+                  ) : (
+                    <MenuItem disabled>Error al cargar horarios</MenuItem>
                   )}
                 </Select>
               </FormControl>

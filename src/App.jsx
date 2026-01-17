@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import WhatsAppButton from './components/WhatsAppButton';
 
 // Importa páginas necesarias
 import PaginaInicio from './pages/PaginaInicio';
@@ -35,6 +36,7 @@ function App() {
 	return (
 		<ErrorBoundary>
 			<AuthProvider>
+				<WhatsAppButton />
 				<Routes>
 					{/* Página principal - PÚBLICA */}
 					<Route path="/" element={<PaginaInicio />} />

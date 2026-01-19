@@ -35,7 +35,28 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
     }
   };
 
-  const precio = item.precio || item.precio_base || item.precio_combo || item.precio_total || 0;
+  const getPrecio = () => {
+    // Si item.precio es "0.00" (string) o 0 (number), JS lo evalúa según la lógica siguiente:
+    // Queremos el primer valor que sea numéricamente > 0
+    const valorPrecio = parseFloat(item.precio);
+    if (valorPrecio > 0) return item.precio;
+
+    const valorDescuento = parseFloat(item.descuento_monto);
+    if (valorDescuento > 0) return item.descuento_monto;
+
+    const valorBase = parseFloat(item.precio_base);
+    if (valorBase > 0) return item.precio_base;
+
+    const valorCombo = parseFloat(item.precio_combo);
+    if (valorCombo > 0) return item.precio_combo;
+
+    const valorTotal = parseFloat(item.precio_total);
+    if (valorTotal > 0) return item.precio_total;
+
+    return 0;
+  };
+
+  const precio = getPrecio();
 
   return (
     <Card
@@ -138,10 +159,17 @@ export default function ProductCard({ item, tipo, index, onReservar, onAddToCarr
           {item.descripcion || `Especial para tu fiesta de colores`}
         </Typography>
 
-        <Box sx={{ mt: 'auto' }}>
+        <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#333" }}>
             ${precio}
           </Typography>
+          {item.cantidad > 0 && (
+            <Chip 
+              label={`x${item.cantidad}`} 
+              size="small" 
+              sx={{ bgcolor: '#eee', color: '#666', fontWeight: 'bold' }}
+            />
+          )}
         </Box>
       </CardContent>
 

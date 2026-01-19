@@ -131,9 +131,21 @@ export default function ReservaModal({
   // ============ CALCULAR PRECIO ============
   const getPrecio = () => {
     if (!item) return 0;
-    if (tipo === 'servicio') return item.precio_base;
-    if (tipo === 'combo') return item.precio_combo || item.precio_total;
-    if (tipo === 'promocion') return item.descuento_monto;
+    
+    // Lista de campos posibles
+    const fields = [
+      item.precio, 
+      item.descuento_monto, 
+      item.precio_base, 
+      item.precio_combo, 
+      item.precio_total
+    ];
+
+    for (let f of fields) {
+      if (f !== undefined && f !== null && parseFloat(f) > 0) {
+        return f;
+      }
+    }
     return 0;
   };
 
@@ -188,7 +200,7 @@ export default function ReservaModal({
         });
         payload.total = precio;
       } else if (tipo === 'promocion') {
-        const precio = item.descuento_monto || 0;
+        const precio = getPrecio();
         payload.detalles.push({
           tipo: 'P',
           promocion: item.id,

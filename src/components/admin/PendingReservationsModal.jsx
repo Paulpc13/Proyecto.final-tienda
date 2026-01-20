@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { getReservas, aprobarReserva, anularReserva, eliminarReserva } from '../../api/reservas';
 import { BASE_URL } from '../../api/client';
+import SafeImage from '../common/SafeImage';
 
 const PendingReservationsModal = ({ isOpen, onClose }) => {
   const [pendingReservations, setPendingReservations] = useState([]);
@@ -141,7 +142,7 @@ const PendingReservationsModal = ({ isOpen, onClose }) => {
                     <div className="md:col-span-4 relative group aspect-video md:aspect-auto">
                       {reserva.comprobante_pago ? (
                         <>
-                          <img 
+                          <SafeImage 
                             src={reserva.comprobante_pago.startsWith('http') ? reserva.comprobante_pago : `${BASE_URL}${reserva.comprobante_pago}`} 
                             alt="Comprobante" 
                             className="w-full h-full object-cover cursor-zoom-in group-hover:scale-110 transition-transform duration-500"
@@ -242,7 +243,7 @@ const PendingReservationsModal = ({ isOpen, onClose }) => {
           <button className="absolute top-8 right-8 text-white hover:text-rose-400 transition-colors">
             <X size={40} />
           </button>
-          <img 
+          <SafeImage 
             src={zoomImage} 
             alt="Comprobante Full" 
             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -10,48 +10,93 @@ import {
   Settings,
   User
 } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 import StatCard from '../components/admin/StatCard';
 import AdminCharts from '../components/admin/AdminCharts';
 import ActivityTable from '../components/admin/ActivityTable';
 import EventMap from '../components/admin/EventMap';
 import PendingReservationsModal from '../components/admin/PendingReservationsModal';
+import CancelacionesModal from '../components/admin/CancelacionesModal';
+import { DashboardProvider, useDashboard } from '../contexts/DashboardContext';
+import { getReservas } from '../api/reservas';
 
-const AdminDashboard = () => {
+const AdminDashboardContent = () => {
+  const { refreshTrigger, refreshDashboard } = useDashboard();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCancelacionesOpen, setIsCancelacionesOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [todayIncome, setTodayIncome] = useState(0);
+  const [totalIncome, setTotalIncome] = useState(300); // Base fija de $300
+  const [reservations, setReservations] = useState([]);
 
-  // Cargar contador real de pendientes e ingresos de hoy
-  React.useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data } = await import('../api/reservas').then(m => m.getReservas());
-        
-        // Contar pendientes
-        const count = data.filter(r => r.estado === 'PENDIENTE').length;
-        setPendingCount(count);
-        
-        // Calcular ingresos de hoy (reservas aprobadas hoy)
-        const today = new Date().toISOString().split('T')[0];
-        const todayApproved = data.filter(r => {
-          if (r.estado === 'APROBADA' && r.fecha_confirmacion) {
-            const confirmDate = new Date(r.fecha_confirmacion).toISOString().split('T')[0];
-            return confirmDate === today;
-          }
-          return false;
-        });
-        
-        const income = todayApproved.reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
-        setTodayIncome(income);
-      } catch (e) {
-        console.error("Error al cargar estadísticas:", e);
-      }
-    };
+  // Cargar todas las estadísticas
+  useEffect(() => {
     fetchStats();
-  }, [isModalOpen]); // Recargar cuando se cierra el modal (por si se aprobaron)
+  }, [refreshTrigger]); // Se actualiza cuando refreshTrigger cambia
+
+  const fetchStats = async () => {
+    try {
+      const { data } = await getReservas();
+      setReservations(data);
+      
+      // Contar pendientes
+      const count = data.filter(r => r.estado === 'PENDIENTE').length;
+      setPendingCount(count);
+      
+      // Calcular ingresos de hoy (reservas aprobadas hoy)
+      const today = new Date().toISOString().split('T')[0];
+      const todayApproved = data.filter(r => {
+        if (r.estado === 'APROBADA' && r.fecha_confirmacion) {
+          const confirmDate = new Date(r.fecha_confirmacion).toISOString().split('T')[0];
+          return confirmDate === today;
+        }
+        return false;
+      });
+      
+      const income = todayApproved.reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
+      setTodayIncome(income);
+      
+      // Calcular ingresos totales: $300 base + suma de todas las aprobadas
+      const allApproved = data.filter(r => r.estado === 'APROBADA');
+      const approvedIncome = allApproved.reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
+      setTotalIncome(300 + approvedIncome);
+    } catch (e) {
+      console.error("Error al cargar estadísticas:", e);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    refreshDashboard(); // Refrescar todo el dashboard al cerrar el modal
+  };
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#FF6B35_0%,#F7931E_25%,#C724B1_75%,#8B5CF6_100%)] p-4 md:p-8 font-sans transition-all duration-700">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 2000,
+          style: {
+            background: '#fff',
+            color: '#333',
+            fontWeight: 'bold',
+            borderRadius: '1rem',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       
       {/* Navbar Superior */}
       <nav className="flex justify-between items-center mb-10 bg-white/20 backdrop-blur-xl p-4 rounded-[2rem] border border-white/30 shadow-2xl">
@@ -78,7 +123,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <StatCard 
           title="Ingresos Totales" 
-          value="$12,450.00" 
+          value={`$${totalIncome.toFixed(2)}`} 
           icon={DollarSign} 
           trend="up" 
           trendValue="+50%" 
@@ -108,7 +153,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-10">
         {/* Columna Izquierda: Gráficos */}
         <div className="xl:col-span-2 space-y-8">
-          <AdminCharts />
+          <AdminCharts reservations={reservations} />
           <ActivityTable />
         </div>
 
@@ -116,8 +161,10 @@ const AdminDashboard = () => {
         <div className="space-y-8">
           
           {/* Tarjeta de Alerta Cancelaciones */}
-          <div className="bg-rose-500/90 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-rose-400 text-white flex items-center justify-between group cursor-pointer hover:bg-rose-600 transition-colors">
-            <div className="flex items-center space-x-4">
+          <div 
+            onClick={() => setIsCancelacionesOpen(true)}
+            className="bg-rose-500/90 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-rose-400 text-white flex items-center justify-between group cursor-pointer hover:bg-rose-600 transition-colors"
+          >            <div className="flex items-center space-x-4">
               <div className="p-3 bg-white/20 rounded-2xl">
                 <XCircle size={28} />
               </div>
@@ -161,13 +208,28 @@ const AdminDashboard = () => {
       {/* Modal de Reservas */}
       <PendingReservationsModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
+      />
+
+      {/* Modal de Cancelaciones */}
+      <CancelacionesModal 
+        isOpen={isCancelacionesOpen}
+        onClose={() => setIsCancelacionesOpen(false)}
       />
 
       <footer className="mt-20 py-10 text-center text-white/60 text-sm font-medium">
         &copy; 2026 Burbujitas de Colores Dashboard | Diseñado con 💖 para Fiestas Increíbles
       </footer>
     </div>
+  );
+};
+
+// Wrapper con Provider
+const AdminDashboard = () => {
+  return (
+    <DashboardProvider>
+      <AdminDashboardContent />
+    </DashboardProvider>
   );
 };
 

@@ -12,6 +12,7 @@ import {
   Ban,
   Maximize2
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { getReservas, aprobarReserva, anularReserva, eliminarReserva } from '../../api/reservas';
 import { BASE_URL } from '../../api/client';
 import SafeImage from '../common/SafeImage';
@@ -57,38 +58,36 @@ const PendingReservationsModal = ({ isOpen, onClose }) => {
   const handleApprove = async (id) => {
     const tid = transaccionIds[id];
     if (!tid) {
-      alert("Por favor, ingresa el ID de transacción antes de aprobar.");
+      toast.error("Por favor, ingresa el ID de transacción antes de aprobar.");
       return;
     }
 
     try {
       await aprobarReserva(id, tid);
-      alert("Reserva aprobada con éxito.");
+      toast.success("✅ Reserva aprobada con éxito");
       fetchPendingReservations();
     } catch (err) {
-      alert(err.response?.data?.error || "Error al aprobar la reserva.");
+      toast.error(err.response?.data?.error || "Error al aprobar la reserva.");
     }
   };
 
   const handleAnnul = async (id) => {
-    if (!window.confirm("¿Estás seguro de que deseas ANULAR esta reserva?")) return;
     try {
       await anularReserva(id);
-      alert("Reserva anulada.");
+      toast.success("🚫 Reserva anulada correctamente");
       fetchPendingReservations();
     } catch (err) {
-      alert("Error al anular la reserva.");
+      toast.error("Error al anular la reserva.");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Estás seguro de que deseas ELIMINAR/OCULTAR esta reserva?")) return;
     try {
       await eliminarReserva(id);
-      alert("Reserva marcada como eliminada.");
+      toast.success("🗑️ Reserva eliminada del sistema");
       fetchPendingReservations();
     } catch (err) {
-      alert("Error al eliminar la reserva.");
+      toast.error("Error al eliminar la reserva.");
     }
   };
 

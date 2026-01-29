@@ -83,16 +83,39 @@ function PaginaConfirmacion() {
         setInfoCopiado(true);
     };
 
+
     const handleFileSelect = (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-        if (!allowedTypes.includes(file.type)) {
-            setError('Formato no permitido. Por favor sube una imagen.');
+        // Validar extensión del archivo
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        
+        if (!allowedExtensions.includes(fileExtension)) {
+            setError(`Formato no permitido. Solo se aceptan: ${allowedExtensions.join(', ').toUpperCase()}`);
+            event.target.value = ''; // Limpiar input
             return;
         }
 
+        // Validar tipo MIME
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+            setError('Tipo de archivo no válido. Por favor sube JPG, PNG o PDF.');
+            event.target.value = '';
+            return;
+        }
+
+        // Validar tamaño (máximo 2MB)
+        const maxSizeMB = 2;
+        const maxSizeBytes = maxSizeMB * 1024 * 1024;
+        if (file.size > maxSizeBytes) {
+            setError(`El archivo es demasiado grande. Tamaño máximo: ${maxSizeMB}MB`);
+            event.target.value = '';
+            return;
+        }
+
+        // Si pasa todas las validaciones
         setSelectedFile(file);
         setPreview(URL.createObjectURL(file));
         setError(null);
@@ -443,7 +466,12 @@ function PaginaConfirmacion() {
                                                         }}
                                                     >
                                                         SUBIR COMPROBANTE
-                                                        <input type="file" hidden accept="image/*" onChange={handleFileSelect} />
+                                                        <input 
+                                                            type="file" 
+                                                            hidden 
+                                                            accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" 
+                                                            onChange={handleFileSelect} 
+                                                        />
                                                     </Button>
                                                 ) : (
                                                     <Button
